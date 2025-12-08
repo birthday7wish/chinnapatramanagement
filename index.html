@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>TEAM SRC × CHINNAPATRA OFFICIAL — Dashboard</title>
+
+<!-- html2canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ---------- Base ---------- */
+:root{
+  --royal:#1f6feb;
+  --silver:#bfcddb;
+  --sky1:#ffffff;
+  --sky2:#e6f7ff;
+  --accent: linear-gradient(135deg,#1f6feb,#6a9cff);
+  --watermark-opacity: 0.35; /* 35% */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body,#app{height:100%;font-family:'Poppins',sans-serif;background:linear-gradient(180deg,var(--sky1),var(--sky2));color:#0f172a}
+.container{max-width:1240px;margin:20px auto;padding:18px;min-height:calc(100vh - 40px)}
+
+/* Topbar */
+.topbar{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.95);padding:14px;border-radius:12px;box-shadow:0 8px 30px rgba(20,20,30,0.06);border-left:6px solid var(--royal)}
+.title{font-weight:800;font-size:18px;background:var(--accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{font-size:13px;color:#475569;margin-top:4px}
+
+/* top-right placeholders (hidden until login) */
+.top-right{display:flex;align-items:center;gap:10px}
+.hidden-before-login{display:none}
+
+/* login inline */
+.login-inline{display:flex;align-items:center;gap:8px}
+.login-inline input{padding:8px 10px;border-radius:8px;border:1px solid #e6eefb}
+.login-inline button{padding:8px 12px;border-radius:10px;border:none;background:var(--royal);color:white;font-weight:700}
+
+/* layout */
+.layout{display:flex;gap:18px;margin-top:18px}
+.sidebar{width:260px;background:linear-gradient(180deg,#fff,#fbfdff);padding:16px;border-radius:12px;border:1px solid rgba(30,58,138,0.05);box-shadow:0 10px 32px rgba(31,111,235,0.06)}
+.nav{display:flex;flex-direction:column;gap:8px}
+.item{padding:10px;border-radius:10px;font-weight:700;color:#334155;border:2px solid #f1f5f9;background:white;text-align:left}
+.item.active{background:var(--royal);color:white;border:transparent;box-shadow:0 8px 24px rgba(31,111,235,0.18)}
+.main{flex:1;background:rgba(255,255,255,0.95);padding:18px;border-radius:12px;min-height:64vh;box-shadow:0 8px 30px rgba(2,6,23,0.04);border:1px solid #e6eefb}
+
+/* panel header & actions */
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.panel-head h2{font-size:18px;font-weight:800;background:var(--accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.panel-actions{display:flex;gap:8px;align-items:center}
+
+/* grid & cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.card{background:white;border-radius:12px;padding:12px;border:1px solid #eef6ff;box-shadow:0 6px 18px rgba(31,111,235,0.03)}
+.card .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.badge{padding:6px 10px;border-radius:999px;font-weight:700;color:white;background:var(--royal);font-size:13px}
+
+/* buttons */
+.btn{padding:8px 12px;border-radius:8px;border:none;background:var(--royal);color:white;font-weight:700}
+.btn.secondary{background:linear-gradient(135deg,#94a3b8,#64748b)}
+.btn.danger{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.muted{color:#64748b;font-weight:600;font-size:14px}
+
+.row{display:flex;gap:8px;align-items:center}
+.input,select{padding:8px 10px;border-radius:8px;border:1px solid #e6eefb}
+.full{width:100%}
+
+/* modal */
+.modal-wrap{position:fixed;left:0;top:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;z-index:9999;background:rgba(4,6,12,0.45)}
+.modal{background:white;padding:18px;border-radius:12px;min-width:320px;max-width:780px;box-shadow:0 30px 80px rgba(2,6,23,0.25)}
+.modal h3{margin-bottom:10px;font-size:18px}
+.modal .form-row{margin-bottom:12px}
+.modal .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:10px}
+
+/* export sheet portrait */
+#exportHidden{position:fixed;left:-9999px;top:-9999px;width:1400px;padding:0;background:white}
+.export-sheet{width:100%;min-height:2000px;background:linear-gradient(180deg,#fff,#eaf8ff);border-radius:36px;padding:0;position:relative;overflow:hidden}
+.export-frame{padding:34px;border-radius:28px;box-sizing:border-box}
+.export-outer{width:100%;height:100%;border-radius:18px;background:linear-gradient(180deg,#fff,#ffffff);padding:28px;box-shadow:0 20px 60px rgba(20,30,80,0.08);border:14px solid var(--royal);position:relative;box-sizing:border-box}
+.export-inner{height:100%;border-radius:8px;border:6px solid var(--silver);background:linear-gradient(180deg,#fff,#f7fbff);overflow:hidden;padding:26px;box-sizing:border-box}
+
+.export-watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 28px;
+  transform: rotate(-10deg);
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.export-watermark .wm-row {
+  width: max-content;
+  white-space: nowrap;
+  margin: 0 auto;
+  font-size: 74px;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-family: 'Times New Roman', serif;
+  letter-spacing: 4px;
+  color: rgba(0,0,0,0.10); /* EXACT 25% opacity */
+}
+
+
+
+/* export header */
+.exp-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px dashed rgba(30,58,138,0.06)}
+.exp-title{font-weight:900;font-size:34px;color:var(--royal)}
+.exp-meta{font-weight:600;color:#334155;text-align:right}
+.exp-logo{width:120px;height:80px;border-radius:8px;overflow:hidden;background:white;border:1px solid #eef6ff;display:flex;align-items:center;justify-content:center}
+
+/* export rows */
+.exp-section{padding:18px 0}
+.exp-row{display:flex;justify-content:space-between;gap:12px;padding:12px;border-radius:10px;background:linear-gradient(90deg,rgba(31,111,235,0.03), rgba(106,156,255,0.03));margin-bottom:10px}
+.exp-left{font-weight:700;color:#0f172a}
+.exp-right{color:#334155;font-weight:600}
+.exp-footer{padding:12px;text-align:center;border-top:1px dashed rgba(30,58,138,0.06);font-weight:800;color:rgba(10,20,50,0.6)}
+
+/* profile popup */
+.profile-icon{width:44px;height:44px;border-radius:50%;cursor:pointer;border:2px solid #1a3d7c;display:flex;align-items:center;justify-content:center}
+.profile-popup{position:absolute;top:76px;right:24px;background:white;padding:14px;border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,0.12);width:260px;display:none;z-index:9999}
+.profile-popup.show{display:block;animation:popupFade .28s}
+.close-profile-btn{background:#1a3d7c;color:white;padding:8px 10px;border-radius:8px;border:none;margin-top:10px;cursor:pointer}
+@keyframes popupFade{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+
+/* login animation */
+.dashboard{opacity:0;transform:translateY(20px);transition:.5s}
+.dashboard.showDash{opacity:1;transform:translateY(0)}
+
+/* dark mode */
+body.dark{background:#071226;color:#eef6ff}
+body.dark .main{background:rgba(255,255,255,0.03);backdrop-filter:blur(6px)}
+body.dark .card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.03)}
+.theme-toggle{padding:6px 12px;border-radius:20px;cursor:pointer;border:1px solid rgba(0,0,0,0.05);background:#fff}
+
+/* Birthday decoration placeholders inside export (static visuals) */
+.decoration{position:relative;margin-bottom:14px}
+.dec-glitter{background-image:radial-gradient(circle at 10% 10%, rgba(255,255,255,0.8) 0px, rgba(255,255,255,0.0) 10px), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.85) 0px, rgba(255,255,255,0) 12px); background-size:60px 60px, 80px 80px; opacity:0.95}
+.dec-confetti{display:flex;flex-wrap:wrap;gap:6px}
+.dec-confetti .dot{width:12px;height:18px;border-radius:3px;transform:rotate(20deg);box-shadow:0 2px 4px rgba(0,0,0,0.08)}
+.dec-balloons{display:flex;gap:14px;align-items:flex-end}
+.dec-balloons .balloon{width:78px;height:110px;border-radius:50% 50% 45% 45%;position:relative;display:flex;align-items:center;justify-content:center}
+.dec-cake{display:flex;flex-direction:column;align-items:center;gap:6px}
+
+/* birthday-today special */
+.birthday-today{border:4px solid gold !important;background:linear-gradient(135deg,#fff4c2,#ffd700) !important;color:#7a5600 !important;box-shadow:0 0 20px rgba(255,215,0,0.6) !important;position:relative}
+.birthday-today::after{content:'👑';font-size:36px;position:absolute;top:-18px;right:-12px}
+
+/* small responsive */
+@media(max-width:900px){
+  .layout{flex-direction:column}
+  .sidebar{width:100%}
+  .grid{grid-template-columns:1fr}
+  .profile-popup{right:12px}
+}
+</style>
+</head>
+<body>
+  <div id="app" class="container">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div>
+        <div class="title">TEAM SRC × CHINNAPATRA OFFICIAL</div>
+        <div class="subtitle">Post Management · Exports: Royal Blue / Silver · Portrait</div>
+      </div>
+
+      <div class="top-right">
+        <!-- welcome and controls (hidden until login) -->
+        <div id="welcomeUser" class="hidden-before-login" style="font-weight:700;color:#123456"></div>
+        <button id="themeToggle" class="theme-toggle hidden-before-login" title="Toggle theme">🌙 Dark</button>
+
+        <div id="profileWrap" class="hidden-before-login" style="position:relative">
+          <div id="profileIcon" class="profile-icon">SRC</div>
+          <div id="profilePopup" class="profile-popup">
+            <div style="font-weight:900">TEAM SRC</div>
+            <div style="margin-top:8px;font-size:13px;color:#475569">Access: Admin</div>
+            <div style="margin-top:8px;font-size:13px;color:#475569">System: CHINNAPATRA OFFICIAL</div>
+            <div id="loginTime" style="margin-top:8px;font-size:13px;color:#475569"></div>
+            <button id="closeProfile" class="close-profile-btn">Close</button>
+          </div>
+        </div>
+
+        <!-- LOGIN AREA (visible before login) -->
+        <div class="login-inline" id="loginArea">
+          <input id="loginUser" placeholder="TEAM SRC" />
+          <input id="loginPass" placeholder="SRC@26" type="password" />
+          <button id="btnLogin" class="btn">Login</button>
+          <button id="btnLogout" class="btn secondary" style="display:none">Logout</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LAYOUT -->
+    <div class="layout" style="margin-top:18px">
+      <!-- SIDEBAR -->
+      <aside class="sidebar hidden-before-login" id="sidebar">
+        <div style="font-weight:800;margin-bottom:12px">NAVIGATION</div>
+        <div class="nav">
+          <div class="item active" data-panel="panelTasks">Tasks</div>
+          <div class="item" data-panel="panelSchedules">Schedules</div>
+          <div class="item" data-panel="panelPosting">Posting Management</div>
+          <div class="item" data-panel="panelBirthdays">Birthdays</div>
+          <div class="item" data-panel="panelStats">Statistics</div>
+          <div class="item" data-panel="panelExport">Export</div>
+        </div>
+
+        <div style="margin-top:16px">
+          <div style="font-weight:800;margin-bottom:8px">Logo (for exports)</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div id="logoBox" style="width:84px;height:64px;border-radius:8px;border:1px dashed #e6eefb;display:flex;align-items:center;justify-content:center;background:white">+</div>
+            <input id="logoFile" type="file" accept="image/*" style="display:none">
+            <button class="btn secondary" id="btnChooseLogo">Choose</button>
+            <button class="btn" id="btnRemoveLogo" style="background:linear-gradient(135deg,#ef4444,#dc2626)">Remove</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN (hidden until login) -->
+      <main class="main dashboard" id="dashboard" style="display:none">
+        <!-- TASKS -->
+        <section id="panelTasks" class="panel active">
+          <div class="panel-head">
+            <h2>Tasks</h2>
+            <div class="panel-actions">
+              <button class="btn" id="addTaskBtn">Add Task</button>
+            </div>
+          </div>
+          <div class="grid" id="tasksGrid"></div>
+        </section>
+
+        <!-- SCHEDULES -->
+        <section id="panelSchedules" class="panel" style="display:none">
+          <div class="panel-head">
+            <h2>Schedules (Add Only — No Status)</h2>
+            <div class="panel-actions">
+              <button class="btn" id="addScheduleBtn">Add Schedule</button>
+            </div>
+          </div>
+          <div id="schedulesContainer"></div>
+        </section>
+
+        <!-- POSTING -->
+        <section id="panelPosting" class="panel" style="display:none">
+          <div class="panel-head">
+            <h2>Posting Management (Day-wise)</h2>
+            <div class="panel-actions">
+              <button class="btn" id="exportPostingDayBtn">Export Posting (Selected Day)</button>
+              <input type="date" id="postingDateFilter" class="input" />
+            </div>
+          </div>
+          <div id="postingList"></div>
+        </section>
+
+        <!-- BIRTHDAYS -->
+        <section id="panelBirthdays" class="panel" style="display:none">
+          <div class="panel-head">
+            <h2>Birthdays</h2>
+            <div class="panel-actions">
+              <button class="btn" id="addBirthdayBtn">Add Birthday</button>
+              <button class="btn secondary" id="exportAllBirthdays">Export All Birthdays</button>
+            </div>
+          </div>
+          <div id="birthdaysList" class="grid"></div>
+        </section>
+
+        <!-- STATS -->
+        <section id="panelStats" class="panel" style="display:none">
+          <div class="panel-head">
+            <h2>Statistics</h2>
+            <div class="panel-actions">
+              <button class="btn" id="exportTaskStats">Export Task Stats</button>
+              <button class="btn" id="exportScheduleStats">Export Schedule Stats</button>
+              <button class="btn" id="exportPostingStats">Export Posting Stats</button>
+              <button class="btn" id="exportBirthdayStats">Export Birthday Stats</button>
+            </div>
+          </div>
+          <div class="grid">
+            <div class="card">
+              <div class="head"><div class="muted">Total Tasks</div><div class="badge" id="statTasks">0</div></div>
+              <div style="margin-top:8px" id="taskListSmall"></div>
+            </div>
+            <div class="card">
+              <div class="head"><div class="muted">Total Schedules</div><div class="badge" id="statSchedules">0</div></div>
+              <div style="margin-top:8px" id="scheduleListSmall"></div>
+            </div>
+            <div class="card">
+              <div class="head"><div class="muted">Total Birthdays</div><div class="badge" id="statBirthdays">0</div></div>
+              <div style="margin-top:8px" id="birthdayListSmall"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- EXPORT -->
+        <section id="panelExport" class="panel" style="display:none">
+          <div class="panel-head">
+            <h2>Export Center</h2>
+            <div class="panel-actions">
+              <button class="btn" id="exportSchedulesAll">Export All Schedules (Portrait)</button>
+              <button class="btn" id="exportPostingAll">Export All Posting (Portrait)</button>
+              <button class="btn" id="exportBirthdaysAll">Export Birthdays (Portrait)</button>
+            </div>
+          </div>
+          <div class="muted">Choose an export type — all exports are portrait, include header & logo & watermark.</div>
+        </section>
+
+      </main>
+    </div>
+
+  </div>
+
+  <!-- modal -->
+  <div class="modal-wrap" id="modalWrap">
+    <div class="modal" id="modalBox">
+      <h3 id="modalTitle">Modal</h3>
+      <div id="modalBody"></div>
+      <div class="actions" id="modalActions"></div>
+    </div>
+  </div>
+
+  <!-- hidden export builder -->
+  <div id="exportHidden" aria-hidden="true"></div>
+
+<script>
+/* ===========================
+   DATA MODEL & LOCALSTORAGE
+   =========================== */
+let TASKS = JSON.parse(localStorage.getItem('TASKS') || '[]');
+let SCHEDULES = JSON.parse(localStorage.getItem('SCHEDULES') || '[]');
+let BIRTHDAYS = JSON.parse(localStorage.getItem('BIRTHDAYS') || '[]');
+let POSTINGS = JSON.parse(localStorage.getItem('POSTINGS') || '[]');
+let LOGO = localStorage.getItem('DASH_LOGO') || null;
+
+/* uid */
+const uid = ()=> Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+
+/* helpers */
+function escapeHtml(s){ if(s===null||s===undefined) return ''; return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function persistAll(){ localStorage.setItem('TASKS', JSON.stringify(TASKS)); localStorage.setItem('SCHEDULES', JSON.stringify(SCHEDULES)); localStorage.setItem('BIRTHDAYS', JSON.stringify(BIRTHDAYS)); localStorage.setItem('POSTINGS', JSON.stringify(POSTINGS)); if(LOGO) localStorage.setItem('DASH_LOGO', LOGO); renderAll(); }
+
+/* UI element references */
+const navItems = document.querySelectorAll('.nav .item');
+navItems.forEach(it=> it.addEventListener('click', ()=>{
+  navItems.forEach(x=>x.classList.remove('active'));
+  it.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.style.display='none');
+  document.getElementById(it.dataset.panel).style.display='block';
+}));
+
+/* login/logout */
+const btnLogin = document.getElementById('btnLogin');
+const btnLogout = document.getElementById('btnLogout');
+function updateGreeting(){
+  const now = new Date(); const hour = now.getHours(); let greeting='';
+  if(hour>=4 && hour<12) greeting='Good Morning';
+  else if(hour>=12 && hour<16) greeting='Good Afternoon';
+  else if(hour>=16 && hour<24) greeting='Good Evening';
+  else greeting='Working Late?';
+  document.getElementById('welcomeUser').innerText = `${greeting}, TEAM SRC 👋`;
+}
+function setLoginTime(){ const t = new Date().toLocaleString(); localStorage.setItem('SRC_LOGIN_TIME', t); const el = document.getElementById('loginTime'); if(el) el.innerText = 'Login Time: ' + t; }
+
+/* show/hide before login: hide everything except title and loginArea */
+function showOnlyLoginUI(){
+  // hide top-right controls except loginArea
+  document.querySelectorAll('.hidden-before-login').forEach(el=> el.style.display='none');
+  // hide sidebar & main
+  document.getElementById('sidebar').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'none';
+  // ensure login area visible
+  document.getElementById('loginArea').style.display = 'flex';
+  // hide logout
+  document.getElementById('btnLogout').style.display = 'none';
+  document.getElementById('btnLogin').style.display = 'inline-block';
+  // clear welcome
+  document.getElementById('welcomeUser').innerText = '';
+}
+
+/* show full dashboard after login */
+function showFullUI(){
+  // show top-right controls
+  document.querySelectorAll('.hidden-before-login').forEach(el=> el.style.display='flex');
+  document.getElementById('profileWrap').style.display = 'flex';
+  // show sidebar & dashboard
+  document.getElementById('sidebar').style.display = 'block';
+  document.getElementById('dashboard').style.display = 'block';
+  // hide login inputs (but keep them in DOM)
+  document.getElementById('loginUser').style.display = 'none';
+  document.getElementById('loginPass').style.display = 'none';
+  document.getElementById('btnLogin').style.display = 'none';
+  document.getElementById('btnLogout').style.display = 'inline-block';
+  // greeting and login time
+  updateGreeting(); setLoginTime();
+  // animate dashboard
+  setTimeout(()=> document.getElementById('dashboard').classList.add('showDash'), 50);
+}
+
+/* init on load */
+window.addEventListener('load', ()=>{
+  // theme
+  if(localStorage.getItem('theme') === 'dark'){ document.body.classList.add('dark'); document.getElementById('themeToggle').innerText = '☀ Light'; }
+  // logo
+  LOGO = localStorage.getItem('DASH_LOGO') || LOGO;
+  renderLogoPreview();
+  // session
+  if(localStorage.getItem('srcLogged') === 'yes'){ showFullUI(); } else { showOnlyLoginUI(); }
+  // set stored login time if exists
+  const lt = localStorage.getItem('SRC_LOGIN_TIME'); if(lt) document.getElementById('loginTime').innerText = 'Login Time: ' + lt;
+  renderAll();
+});
+
+/* login action */
+btnLogin.addEventListener('click', ()=>{
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value.trim();
+  if(user === 'TEAM SRC' && pass === 'SRC@26'){
+    localStorage.setItem('srcLogged', 'yes');
+    setLoginTime();
+    showFullUI();
+    persistAll();
+  } else {
+    alert('Invalid credentials. Use TEAM SRC / SRC@26');
+  }
+});
+
+/* logout */
+btnLogout.addEventListener('click', ()=> {
+  if(confirm('Logout?')){ localStorage.removeItem('srcLogged'); showOnlyLoginUI(); }
+});
+
+/* profile popup */
+document.getElementById('profileIcon').addEventListener('click', ()=> document.getElementById('profilePopup').classList.toggle('show'));
+document.getElementById('closeProfile').addEventListener('click', ()=> document.getElementById('profilePopup').classList.remove('show'));
+
+/* theme toggle */
+const themeBtn = document.getElementById('themeToggle');
+themeBtn.addEventListener('click', ()=>{
+  document.body.classList.toggle('dark');
+  const mode = document.body.classList.contains('dark') ? 'dark' : 'light';
+  localStorage.setItem('theme', mode);
+  themeBtn.innerText = mode==='dark' ? '☀ Light' : '🌙 Dark';
+});
+
+/* logo upload */
+const logoFile = document.getElementById('logoFile');
+const btnChooseLogo = document.getElementById('btnChooseLogo');
+const btnRemoveLogo = document.getElementById('btnRemoveLogo');
+const logoBox = document.getElementById('logoBox');
+btnChooseLogo.addEventListener('click', ()=> logoFile.click());
+logoFile.addEventListener('change', e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ev=>{ LOGO = ev.target.result; localStorage.setItem('DASH_LOGO', LOGO); renderLogoPreview(); };
+  r.readAsDataURL(f);
+});
+btnRemoveLogo.addEventListener('click', ()=> { LOGO = null; localStorage.removeItem('DASH_LOGO'); renderLogoPreview(); });
+function renderLogoPreview(){ if(LOGO) logoBox.innerHTML = `<img src="${LOGO}" style="max-width:100%;max-height:100%;object-fit:contain">`; else logoBox.innerHTML = '+'; }
+
+/* modal utilities */
+const modalWrap = document.getElementById('modalWrap');
+function openModal(title, bodyHtml, actions){
+  document.getElementById('modalTitle').innerText = title;
+  document.getElementById('modalBody').innerHTML = bodyHtml;
+  const actionsEl = document.getElementById('modalActions'); actionsEl.innerHTML='';
+  actions.forEach(a=>{ const btn = document.createElement('button'); btn.innerText = a.text; btn.className = a.class || 'btn'; btn.addEventListener('click', ()=> a.onClick()); actionsEl.appendChild(btn); });
+  modalWrap.style.display = 'flex';
+}
+function closeModal(){ modalWrap.style.display = 'none'; }
+
+/* ========== Render & CRUD ========== */
+function renderAll(){ renderTasksGrid(); renderSchedulesView(); renderPostingView(); renderBirthdays(); renderStats(); renderLogoPreview(); }
+
+/* TASKS */
+function renderTasksGrid(){
+  const container = document.getElementById('tasksGrid'); container.innerHTML='';
+  if(TASKS.length===0){ container.innerHTML = `<div class="card"><div class="muted">No tasks. Click Add Task to create.</div></div>`; return; }
+  TASKS.forEach((t,i)=>{ const div = document.createElement('div'); div.className='card'; div.innerHTML = `<div class="head"><div style="font-weight:800">${escapeHtml(t.id)}</div><div class="badge">${escapeHtml(t.type)}</div></div><div style="margin-top:8px"><button class="btn" data-act="editTask" data-i="${i}">Edit</button><button class="btn danger" data-act="delTask" data-i="${i}" style="margin-left:8px">Delete</button></div>`; container.appendChild(div); });
+  container.querySelectorAll('[data-act]').forEach(b=> b.addEventListener('click', ()=> { const idx = +b.dataset.i; if(b.dataset.act==='editTask') openEditTask(idx); else if(b.dataset.act==='delTask'){ if(confirm('Delete task?')){ const removedId = TASKS[idx].id; TASKS.splice(idx,1); SCHEDULES = SCHEDULES.filter(s=>s.taskId!==removedId); POSTINGS = POSTINGS.filter(p=> SCHEDULES.findIndex(s=>s.uid===p.scheduleUid)!==-1 ); persistAll(); } } }));
+}
+
+/* SCHEDULES */
+function renderSchedulesView(){
+  const container = document.getElementById('schedulesContainer'); container.innerHTML='';
+  if(SCHEDULES.length===0){ container.innerHTML = `<div class="muted">No schedules. Add schedule entries here.</div>`; return; }
+  const grouped = {}; SCHEDULES.forEach(s=> (grouped[s.date]=grouped[s.date]||[]).push(s) );
+  const dates = Object.keys(grouped).sort((a,b)=> new Date(a)-new Date(b));
+  dates.forEach(d=>{ const section = document.createElement('div'); section.style.marginBottom='12px'; section.innerHTML = `<div style="font-weight:900;color:var(--royal);margin-bottom:8px">${d}</div>`; grouped[d].forEach(s=>{ const card=document.createElement('div'); card.className='card'; card.style.display='flex'; card.style.justifyContent='space-between'; card.style.alignItems='center'; card.style.marginBottom='8px'; card.innerHTML=`<div><div style="font-weight:800">${escapeHtml(s.taskId)} (${escapeHtml(s.type)}) — ${escapeHtml(s.time)}</div><div class="muted" style="margin-top:6px">Artist: ${escapeHtml(s.artist)} | Platform: ${escapeHtml(s.platform)}</div></div><div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;gap:8px"><button class="btn" data-act="editSchedule" data-uid="${s.uid}">Edit</button><button class="btn danger" data-act="delSchedule" data-uid="${s.uid}">Delete</button></div></div>`; section.appendChild(card); }); container.appendChild(section); });
+  container.querySelectorAll('[data-act]').forEach(b=> b.addEventListener('click', ()=> { const act=b.dataset.act, uidv=b.dataset.uid; if(act==='editSchedule') openEditSchedule(uidv); if(act==='delSchedule'){ if(confirm('Delete schedule?')){ SCHEDULES = SCHEDULES.filter(x=>x.uid!==uidv); POSTINGS = POSTINGS.filter(p=>p.scheduleUid!==uidv); persistAll(); } } }));
+}
+
+/* POSTING */
+function renderPostingView(){
+  const list = document.getElementById('postingList'); list.innerHTML='';
+  const filter = document.getElementById('postingDateFilter').value || '';
+  const chosen = filter || new Date().toISOString().slice(0,10); document.getElementById('postingDateFilter').value = chosen;
+  const entries = SCHEDULES.filter(s=> s.date===chosen);
+  if(entries.length===0){ list.innerHTML = `<div class="muted">No schedules for ${chosen}</div>`; return; }
+  entries.forEach(s=>{ let post = POSTINGS.find(p=>p.scheduleUid===s.uid && p.date===chosen); if(!post){ post = {scheduleUid:s.uid, date:chosen, ig:false, fb:false}; POSTINGS.push(post); localStorage.setItem('POSTINGS', JSON.stringify(POSTINGS)); }
+    const card=document.createElement('div'); card.className='card'; card.style.display='flex'; card.style.justifyContent='space-between'; card.style.alignItems='center'; card.style.marginBottom='8px'; card.innerHTML=`<div><div style="font-weight:800">${escapeHtml(s.taskId)} (${escapeHtml(s.type)}) — ${escapeHtml(s.time)}</div><div class="muted" style="margin-top:6px">Artist: ${escapeHtml(s.artist)} | Platform: ${escapeHtml(s.platform)}</div></div><div style="display:flex;gap:8px;align-items:center"><label style="display:flex;flex-direction:column;align-items:center;font-weight:700">IG<br><input type="checkbox" ${post.ig?'checked':''} data-post="${s.uid}" data-which="ig"></label><label style="display:flex;flex-direction:column;align-items:center;font-weight:700">FB<br><input type="checkbox" ${post.fb?'checked':''} data-post="${s.uid}" data-which="fb"></label><button class="btn secondary" data-act="exportSinglePosting" data-uid="${s.uid}">Export Row JPG</button></div>`; list.appendChild(card); });
+  list.querySelectorAll('input[type=checkbox]').forEach(cb=> cb.addEventListener('change', ()=>{ const schedUid=cb.dataset.post; const which=cb.dataset.which; const chosenDate=document.getElementById('postingDateFilter').value; let post=POSTINGS.find(p=>p.scheduleUid===schedUid && p.date===chosenDate); if(!post){ post={scheduleUid:schedUid, date:chosenDate, ig:false, fb:false}; POSTINGS.push(post); } post[which]=cb.checked; localStorage.setItem('POSTINGS', JSON.stringify(POSTINGS)); renderStats(); }));
+  list.querySelectorAll('[data-act="exportSinglePosting"]').forEach(b=> b.addEventListener('click', ()=>{ const schedUid=b.dataset.uid; const chosenDate=document.getElementById('postingDateFilter').value; const rec=SCHEDULES.find(s=>s.uid===schedUid); const post=POSTINGS.find(p=>p.scheduleUid===schedUid && p.date===chosenDate) || {ig:false,fb:false}; exportPostingSinglePortrait(rec, post); }));
+}
+
+/* BIRTHDAYS */
+function renderBirthdays(){
+  const container = document.getElementById('birthdaysList'); container.innerHTML='';
+  if(BIRTHDAYS.length===0){ container.innerHTML = `<div class="card"><div class="muted">No birthdays added</div></div>`; return; }
+  BIRTHDAYS.forEach((b,i)=>{ const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div style="font-weight:900">${escapeHtml(b.name)}</div><div class="muted">${escapeHtml(b.department)} · ${escapeHtml(b.date)}</div><div style="margin-top:10px"><button class="btn" data-act="editB" data-uid="${b.uid}">Edit</button><button class="btn danger" data-act="delB" data-uid="${b.uid}" style="margin-left:8px">Delete</button><button class="btn secondary" data-act="expB" data-uid="${b.uid}" style="margin-left:8px">Export Person JPG</button></div>`; container.appendChild(c); });
+  container.querySelectorAll('[data-act]').forEach(b=> b.addEventListener('click', ()=>{ const act=b.dataset.act, id=b.dataset.uid; if(act==='editB') openEditBirthday(id); if(act==='delB'){ if(confirm('Delete birthday?')){ BIRTHDAYS = BIRTHDAYS.filter(x=>x.uid!==id); persistAll(); } } if(act==='expB'){ const rec=BIRTHDAYS.find(x=>x.uid===id); openBirthdayExportChoice(rec); } }));
+}
+
+/* STATS */
+function renderStats(){
+  document.getElementById('statTasks').innerText = TASKS.length;
+  document.getElementById('statSchedules').innerText = SCHEDULES.length;
+  document.getElementById('statBirthdays').innerText = BIRTHDAYS.length;
+  document.getElementById('taskListSmall').innerHTML = TASKS.slice(0,10).map(t=>`<div>${escapeHtml(t.id)} — ${escapeHtml(t.type)}</div>`).join('');
+  document.getElementById('scheduleListSmall').innerHTML = SCHEDULES.slice(0,10).map(s=>`<div>${escapeHtml(s.date)} · ${escapeHtml(s.taskId)} (${escapeHtml(s.time)})</div>`).join('');
+  document.getElementById('birthdayListSmall').innerHTML = BIRTHDAYS.slice(0,10).map(b=>`<div>${escapeHtml(b.name)} · ${escapeHtml(b.date)}</div>`).join('');
+}
+
+/* ========== CRUD Modals ========== */
+/* Add Task */
+document.getElementById('addTaskBtn').addEventListener('click', ()=>{ openModal('Add Task', `<div class="form-row"><label>Task ID</label><input id="f_taskId" class="input full" placeholder="TASK-001"></div><div class="form-row"><label>Task Type</label><input id="f_taskType" class="input full" placeholder="e.g. Promo"></div>`, [{text:'Cancel',class:'btn secondary',onClick:closeModal},{text:'Add',class:'btn',onClick:()=>{ const id=document.getElementById('f_taskId').value.trim(); const type=document.getElementById('f_taskType').value.trim(); if(!id||!type){ alert('Fill both'); return; } TASKS.push({id,type}); persistAll(); closeModal(); }}] ); });
+
+/* Edit Task */
+function openEditTask(index){ const rec=TASKS[index]; openModal('Edit Task', `<div class="form-row"><label>Task ID</label><input id="f_taskId" class="input full" value="${escapeHtml(rec.id)}"></div><div class="form-row"><label>Task Type</label><input id="f_taskType" class="input full" value="${escapeHtml(rec.type)}"></div>`, [{text:'Cancel',class:'btn secondary',onClick:closeModal},{text:'Update',class:'btn',onClick:()=>{ const id=document.getElementById('f_taskId').value.trim(); const type=document.getElementById('f_taskType').value.trim(); if(!id||!type){ alert('Fill both'); return; } const oldId=rec.id; TASKS[index]={id,type}; SCHEDULES = SCHEDULES.map(s=> s.taskId===oldId ? {...s, taskId:id, type} : s); persistAll(); closeModal(); }}] ); }
+
+/* Add Schedule */
+document.getElementById('addScheduleBtn').addEventListener('click', ()=>{ if(TASKS.length===0){ alert('Add tasks first'); return; } const options = TASKS.map(t=>`<option value="${escapeHtml(t.id)}">${escapeHtml(t.id)} — ${escapeHtml(t.type)}</option>`).join(''); openModal('Add Schedule', `<div class="form-row"><label>Task</label><select id="f_s_task" class="input full">${options}</select></div><div class="form-row"><label>Date</label><input id="f_s_date" type="date" class="input full"></div><div class="form-row"><label>Time</label><input id="f_s_time" type="time" class="input full"></div><div class="form-row"><label>Artist</label><input id="f_s_artist" class="input full" placeholder="Artist name"></div><div class="form-row"><label>Platform</label><select id="f_s_platform" class="input full"><option>IG</option><option>FB</option><option>Both</option></select></div>`, [{text:'Cancel',class:'btn secondary',onClick:closeModal},{text:'Add',class:'btn',onClick:()=>{ const taskId=document.getElementById('f_s_task').value; const date=document.getElementById('f_s_date').value; const time=document.getElementById('f_s_time').value; const artist=document.getElementById('f_s_artist').value.trim(); const platform=document.getElementById('f_s_platform').value; if(!taskId||!date||!time||!artist){ alert('Fill required'); return; } const type=(TASKS.find(t=>t.id===taskId)||{}).type||''; SCHEDULES.push({taskId,type,date,time,artist,platform,uid:uid()}); persistAll(); closeModal(); }}] ); });
+
+/* Edit Schedule */
+function openEditSchedule(schedUid){ const rec=SCHEDULES.find(s=>s.uid===schedUid); if(!rec) return alert('Not found'); const options = TASKS.map(t=>`<option value="${escapeHtml(t.id)}" ${t.id===rec.taskId?'selected':''}>${escapeHtml(t.id)} — ${escapeHtml(t.type)}</option>`).join(''); openModal('Edit Schedule', `<div class="form-row"><label>Task</label><select id="f_s_task" class="input full">${options}</select></div><div class="form-row"><label>Date</label><input id="f_s_date" type="date" class="input full" value="${escapeHtml(rec.date)}"></div><div class="form-row"><label>Time</label><input id="f_s_time" type="time" class="input full" value="${escapeHtml(rec.time)}"></div><div class="form-row"><label>Artist</label><input id="f_s_artist" class="input full" value="${escapeHtml(rec.artist)}"></div><div class="form-row"><label>Platform</label><select id="f_s_platform" class="input full"><option ${rec.platform==='IG'?'selected':''}>IG</option><option ${rec.platform==='FB'?'selected':''}>FB</option><option ${rec.platform==='Both'?'selected':''}>Both</option></select></div>`, [{text:'Cancel',class:'btn secondary',onClick:closeModal},{text:'Update',class:'btn',onClick:()=>{ const taskId=document.getElementById('f_s_task').value; const date=document.getElementById('f_s_date').value; const time=document.getElementById('f_s_time').value; const artist=document.getElementById('f_s_artist').value.trim(); const platform=document.getElementById('f_s_platform').value; if(!taskId||!date||!time||!artist){ alert('Fill required'); return; } const type=(TASKS.find(t=>t.id===taskId)||{}).type||''; SCHEDULES = SCHEDULES.map(s=> s.uid===schedUid ? {...s, taskId, type, date, time, artist, platform} : s); persistAll(); closeModal(); }}] ); }
+
+/* Add Birthday */
+document.getElementById('addBirthdayBtn').addEventListener('click', ()=>{ openModal('Add Birthday', `<div class="form-row"><label>Name</label><input id="f_b_name" class="input full"></div><div class="form-row"><label>Department/Type</label><input id="f_b_dept" class="input full"></div><div class="form-row"><label>Date</label><input id="f_b_date" type="date" class="input full"></div>`, [{text:'Cancel',class:'btn secondary',onClick:closeModal},{text:'Add',class:'btn',onClick:()=>{ const name=document.getElementById('f_b_name').value.trim(); const dept=document.getElementById('f_b_dept').value.trim(); const date=document.getElementById('f_b_date').value; if(!name||!dept||!date){ alert('Fill required'); return; } BIRTHDAYS.push({name,department:dept,date,uid:uid()}); persistAll(); closeModal(); }}] ); });
+
+/* Edit Birthday */
+function openEditBirthday(uidv){ const rec=BIRTHDAYS.find(b=>b.uid===uidv); if(!rec) return; openModal('Edit Birthday', `<div class="form-row"><label>Name</label><input id="f_b_name" class="input full" value="${escapeHtml(rec.name)}"></div><div class="form-row"><label>Department/Type</label><input id="f_b_dept" class="input full" value="${escapeHtml(rec.department)}"></div><div class="form-row"><label>Date</label><input id="f_b_date" type="date" class="input full" value="${escapeHtml(rec.date)}"></div>`, [{text:'Cancel',class:'btn secondary',onClick:closeModal},{text:'Update',class:'btn',onClick:()=>{ const name=document.getElementById('f_b_name').value.trim(); const dept=document.getElementById('f_b_dept').value.trim(); const date=document.getElementById('f_b_date').value; if(!name||!dept||!date){ alert('Fill required'); return; } BIRTHDAYS = BIRTHDAYS.map(b=> b.uid===uidv ? {name,department:dept,date,uid:uidv} : b); persistAll(); closeModal(); }}] ); }
+
+/* ========== Export Builders & Birthday Theme Logic ========== */
+
+/* build export sheet DOM with watermark opacity 35% (CSS variable used) */
+function buildExportSheet(title, subtitle, rowsHtml){
+  const wrapper = document.createElement('div'); 
+  wrapper.className = 'export-sheet';
+
+  const rowText = "CHINNAPATRA OFFICIAL ".repeat(12);
+
+  // build 8 horizontal rows
+  let waterRows = "";
+  for (let i = 0; i < 8; i++) {
+    waterRows += `<div class="wm-row">${rowText}</div>`;
+  }
+
+  wrapper.innerHTML = `
+  <div class="export-frame">
+    <div class="export-outer">
+      <div class="export-inner">
+        <div class="exp-header">
+          <div>
+            <div class="exp-title">${escapeHtml(title)}</div>
+            <div class="exp-meta">${escapeHtml(subtitle)}</div>
+          </div>
+          <div class="exp-logo">
+            ${ LOGO ? `<img src="${LOGO}" style="max-width:100%;max-height:100%;object-fit:contain">` : '' }
+          </div>
+        </div>
+
+        <div style="padding-top:12px">${rowsHtml}</div>
+
+        <div class="exp-footer">CHINNAPATRA OFFICIAL · TEAM SRC × CHINNAPATRA OFFICIAL</div>
+      </div>
+
+      <!-- MULTI ROW WATERMARK -->
+      <div class="export-watermark">${waterRows}</div>
+    </div>
+  </div>
+  `;
+  return wrapper;
+}
+
+
+/* common capture */
+async function captureAndDownload(sheetNode, filename){
+  const exportHidden = document.getElementById('exportHidden'); exportHidden.innerHTML=''; exportHidden.appendChild(sheetNode);
+  await new Promise(r=>setTimeout(r,220));
+  const sheet = exportHidden.querySelector('.export-sheet');
+  const canvas = await html2canvas(sheet, { scale:2, useCORS:true, allowTaint:true, logging:false });
+  const data = canvas.toDataURL('image/jpeg', 0.95);
+  const a = document.createElement('a'); a.href = data; a.download = filename; a.click();
+  exportHidden.innerHTML='';
+}
+
+/* All Schedules export */
+document.getElementById('exportSchedulesAll').addEventListener('click', async ()=>{
+  if(SCHEDULES.length===0){ alert('No schedules to export'); return; }
+  const grouped={}; SCHEDULES.forEach(s=> (grouped[s.date]=grouped[s.date]||[]).push(s));
+  const dates = Object.keys(grouped).sort((a,b)=> new Date(a)-new Date(b));
+  let rowsHtml=''; dates.forEach(d=>{ rowsHtml += `<div style="font-weight:900;color:var(--royal);margin-bottom:8px">${d}</div>`; grouped[d].forEach(s=> rowsHtml += `<div class="exp-row"><div class="exp-left">${escapeHtml(s.taskId)} (${escapeHtml(s.type)})<div style="font-weight:600;color:#64748b;font-size:13px">${escapeHtml(s.time)} · ${escapeHtml(s.artist)}</div></div><div class="exp-right">${escapeHtml(s.platform)}</div></div>`); });
+  const sheet = buildExportSheet('Schedules', `Generated: ${new Date().toLocaleString()}`, rowsHtml);
+  await captureAndDownload(sheet, `Schedules_${Date.now()}.jpg`);
+});
+
+/* All Posting export */
+document.getElementById('exportPostingAll').addEventListener('click', async ()=>{
+  if(SCHEDULES.length===0){ alert('No schedules/postings to export'); return; }
+  const grouped={}; SCHEDULES.forEach(s=> (grouped[s.date]=grouped[s.date]||[]).push(s));
+  const dates = Object.keys(grouped).sort((a,b)=> new Date(a)-new Date(b));
+  let rowsHtml=''; dates.forEach(d=>{ rowsHtml += `<div style="font-weight:900;color:var(--royal);margin-bottom:8px">${d}</div>`; grouped[d].forEach(s=>{ const post = POSTINGS.find(p=>p.scheduleUid===s.uid && p.date===d) || {ig:false,fb:false}; const ig = post.ig ? 'Posted (IG)' : 'Not Posted (IG)'; const fb = post.fb ? 'Posted (FB)' : 'Not Posted (FB)'; rowsHtml += `<div class="exp-row"><div class="exp-left">${escapeHtml(s.taskId)} (${escapeHtml(s.type)})<div style="font-weight:600;color:#64748b;font-size:13px">${escapeHtml(s.time)} · ${escapeHtml(s.artist)}</div></div><div class="exp-right">${ig}<br>${fb}</div></div>`; }); });
+  const sheet = buildExportSheet('Posting Report', `Generated: ${new Date().toLocaleString()}`, rowsHtml);
+  await captureAndDownload(sheet, `Posting_${Date.now()}.jpg`);
+});
+
+/* All Birthdays export */
+document.getElementById('exportBirthdaysAll').addEventListener('click', async ()=>{
+  if(BIRTHDAYS.length===0){ alert('No birthdays to export'); return; }
+  let rowsHtml=''; BIRTHDAYS.forEach((b,idx)=> rowsHtml += `<div class="exp-row"><div class="exp-left">${escapeHtml(b.name)}<div style="font-weight:600;color:#64748b;font-size:13px">${escapeHtml(b.department)}</div></div><div class="exp-right">${escapeHtml(b.date)}</div></div>`);
+  const sheet = buildExportSheet('Birthdays', `Total: ${BIRTHDAYS.length} · Generated: ${new Date().toLocaleString()}`, rowsHtml);
+  await captureAndDownload(sheet, `Birthdays_${Date.now()}.jpg`);
+});
+
+/* Posting Day export */
+document.getElementById('exportPostingDayBtn').addEventListener('click', async ()=>{
+  const chosen = document.getElementById('postingDateFilter').value || new Date().toISOString().slice(0,10);
+  const entries = SCHEDULES.filter(s=>s.date===chosen); if(entries.length===0){ alert('No schedules on '+chosen); return; }
+  let rowsHtml=''; entries.forEach(s=>{ const post = POSTINGS.find(p=>p.scheduleUid===s.uid && p.date===chosen) || {ig:false,fb:false}; rowsHtml += `<div class="exp-row"><div class="exp-left">${escapeHtml(s.taskId)} (${escapeHtml(s.type)})<div style="font-weight:600;color:#64748b;font-size:13px">${escapeHtml(s.time)} · ${escapeHtml(s.artist)}</div></div><div class="exp-right">${post.ig?'Posted (IG)':'Not (IG)'}<br>${post.fb?'Posted (FB)':'Not (FB)'}</div></div>`; });
+  const sheet = buildExportSheet(`Posting — ${chosen}`, `Generated: ${new Date().toLocaleString()}`, rowsHtml);
+  await captureAndDownload(sheet, `Posting_${chosen}.jpg`);
+});
+
+/* single posting row export */
+function exportPostingSinglePortrait(scheduleRec, postRec){
+  if(!scheduleRec) return alert('Schedule not found');
+  const rowsHtml = `<div class="exp-row"><div class="exp-left">${escapeHtml(scheduleRec.taskId)} (${escapeHtml(scheduleRec.type)})<div style="font-weight:600;color:#64748b;font-size:13px">${escapeHtml(scheduleRec.date)} · ${escapeHtml(scheduleRec.time)} · ${escapeHtml(scheduleRec.artist)}</div></div><div class="exp-right">${postRec.ig?'Posted (IG)':'Not (IG)'}<br>${postRec.fb?'Posted (FB)':'Not (FB)'}</div></div>`;
+  const sheet = buildExportSheet(`Posting Row`, `Schedule: ${scheduleRec.date}`, rowsHtml); captureAndDownload(sheet, `Posting_row_${scheduleRec.uid}.jpg`);
+}
+
+/* Stats exports */
+document.getElementById('exportTaskStats').addEventListener('click', async ()=>{ let rowsHtml = TASKS.map((t,i)=> `<div class="exp-row"><div class="exp-left">#${i+1} ${escapeHtml(t.id)}</div><div class="exp-right">${escapeHtml(t.type)}</div></div>`).join(''); const sheet = buildExportSheet('Task Statistics', `Total Tasks: ${TASKS.length}`, rowsHtml); await captureAndDownload(sheet, `TaskStats_${Date.now()}.jpg`); });
+document.getElementById('exportScheduleStats').addEventListener('click', async ()=>{ const byDate={}; SCHEDULES.forEach(s=> byDate[s.date] = (byDate[s.date]||0)+1); let rowsHtml = Object.keys(byDate).sort().map(d=> `<div class="exp-row"><div class="exp-left">${escapeHtml(d)}</div><div class="exp-right">${byDate[d]} schedules</div></div>`).join(''); const sheet = buildExportSheet('Schedule Statistics', `Total Schedules: ${SCHEDULES.length}`, rowsHtml); await captureAndDownload(sheet, `ScheduleStats_${Date.now()}.jpg`); });
+document.getElementById('exportPostingStats').addEventListener('click', async ()=>{ let igCount=0, fbCount=0, total=0; POSTINGS.forEach(p=>{ if(p.ig) igCount++; if(p.fb) fbCount++; total++; }); let rowsHtml = `<div class="exp-row"><div class="exp-left">Total posting records</div><div class="exp-right">${total}</div></div><div class="exp-row"><div class="exp-left">IG posted</div><div class="exp-right">${igCount}</div></div><div class="exp-row"><div class="exp-left">FB posted</div><div class="exp-right">${fbCount}</div></div>`; const sheet = buildExportSheet('Posting Statistics', `Records: ${total}`, rowsHtml); await captureAndDownload(sheet, `PostingStats_${Date.now()}.jpg`); });
+document.getElementById('exportBirthdayStats').addEventListener('click', async ()=>{ let rowsHtml = BIRTHDAYS.map((b,i)=> `<div class="exp-row"><div class="exp-left">#${i+1} ${escapeHtml(b.name)}</div><div class="exp-right">${escapeHtml(b.date)}</div></div>`).join(''); const sheet = buildExportSheet('Birthday Statistics', `Total Birthdays: ${BIRTHDAYS.length}`, rowsHtml); await captureAndDownload(sheet, `BirthdayStats_${Date.now()}.jpg`); });
+
+/* bind export all birthdays button */
+document.getElementById('exportAllBirthdays').addEventListener('click', ()=> document.getElementById('exportBirthdaysAll').click());
+document.getElementById('exportBirthdaysAll').addEventListener('click', async ()=> { if(BIRTHDAYS.length===0){ alert('No birthdays to export'); return; } let rowsHtml=''; BIRTHDAYS.forEach((b)=> rowsHtml += `<div class="exp-row"><div class="exp-left">${escapeHtml(b.name)}<div style="font-weight:600;color:#64748b;font-size:13px">${escapeHtml(b.department)}</div></div><div class="exp-right">${escapeHtml(b.date)}</div></div>`); const sheet = buildExportSheet('Birthdays', `Total: ${BIRTHDAYS.length} · Generated: ${new Date().toLocaleString()}`, rowsHtml); await captureAndDownload(sheet, `Birthdays_${Date.now()}.jpg`); });
+
+/* ========== Birthday Theme Export UI & Logic ========= */
+
+/* open choice modal for birthday export theme */
+function openBirthdayExportChoice(bRec){
+  if(!bRec) return;
+  const bodyHtml = `
+    <div style="margin-bottom:10px;font-weight:800">Export Birthday for: ${escapeHtml(bRec.name)}</div>
+    <div style="margin-bottom:6px">Choose theme (affects decoration):</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <label><input type="radio" name="btheme" value="glitter" checked> Glitter ✨</label>
+      <label><input type="radio" name="btheme" value="confetti"> Confetti 🎊</label>
+      <label><input type="radio" name="btheme" value="balloons"> Balloons 🎈</label>
+      <label><input type="radio" name="btheme" value="cake"> Cake 🎂</label>
+      <label><input type="radio" name="btheme" value="random"> Random 🎲</label>
+    </div>
+    <div style="margin-bottom:8px">Heading shown on JPG:</div>
+    <div style="font-weight:800;margin-bottom:8px">✨ Wishing You a Wonderful Birthday!</div>
+  `;
+  openModal('Birthday Export Theme', bodyHtml, [
+    { text:'Cancel', class:'btn secondary', onClick: closeModal },
+    { text:'Export JPG', class:'btn', onClick: ()=>{
+        const sel = document.querySelector('input[name="btheme"]:checked').value;
+        closeModal();
+        exportBirthdayWithTheme(bRec, sel);
+    } }
+  ]);
+}
+
+/* export birthday with chosen theme (applies decoration to export inner box) */
+async function exportBirthdayWithTheme(bRec, theme){
+  if(!bRec) return;
+  const today = new Date(); const [yy, mm, dd] = bRec.date.split('-').map(Number);
+  const isToday = (today.getDate()===dd && (today.getMonth()+1)===mm);
+
+  // build decoration HTML based on theme (static shapes suitable for JPG)
+  let decHtml = '';
+  if(theme==='random'){ const arr=['glitter','confetti','balloons','cake']; theme = arr[Math.floor(Math.random()*arr.length)]; }
+  if(theme==='glitter'){
+    decHtml = `<div class="decoration dec-glitter" style="height:140px;border-radius:12px;margin-bottom:16px"></div>`;
+  } else if(theme==='confetti'){
+    // create colored rectangles
+    let dots = '';
+    const colors = ['#ff5e7a','#ffd25e','#5ee6ff','#9d5eff','#4dffa6','#ffd2f0'];
+    for(let i=0;i<60;i++){ const c = colors[i%colors.length]; dots += `<div class="dot" style="background:${c};"></div>`; }
+    decHtml = `<div class="decoration dec-confetti" style="height:120px">${dots}</div>`;
+  } else if(theme==='balloons'){
+    // balloons as colored circles with tails
+    const balloonColors = ['#ff5e7a','#ffd25e','#5ee6ff','#9d5eff','#4dffa6'];
+    let bHtml='';
+    balloonColors.forEach((c,idx)=>{ bHtml += `<div class="balloon-wrap" style="display:flex;flex-direction:column;align-items:center"><div class="balloon" style="background:${c};width:78px;height:110px;border-radius:50% 50% 45% 45%;display:flex;align-items:center;justify-content:center;font-size:28px;color:white">${idx%2===0?'🎈':' '}</div><div style="width:2px;height:30px;background:rgba(0,0,0,0.12);margin-top:6px"></div></div>`; });
+    decHtml = `<div class="decoration dec-balloons" style="height:160px;gap:18px">${bHtml}</div>`;
+  } else if(theme==='cake'){
+    decHtml = `<div class="decoration dec-cake" style="height:200px"><div style="font-size:72px">🎂</div><div style="font-weight:800;font-size:26px">Make a Wish!</div></div>`;
+  } else {
+    decHtml = `<div class="decoration dec-glitter" style="height:140px;border-radius:12px;margin-bottom:16px"></div>`;
+  }
+
+  const heading = '✨ Wishing You a Wonderful Birthday!'; // your chosen custom heading
+
+  // main rowsHtml with decoration and person info
+  let rowsHtml = `<div style="text-align:center;padding:36px 0"><div style="font-weight:900;font-size:44px">${escapeHtml(heading)}</div><div style="font-size:28px;font-weight:900;margin-top:18px">${escapeHtml(bRec.name)}</div><div style="color:#475569;margin-top:8px">${escapeHtml(bRec.department)}</div><div style="color:#334155;margin-top:10px;font-weight:700">${escapeHtml(bRec.date)}</div></div>${decHtml}`;
+
+  const sheet = buildExportSheet(`Birthday — ${bRec.name}`, `Generated: ${new Date().toLocaleString()}`, rowsHtml);
+  // apply special today styling if birthday today
+  if(isToday){ const inner = sheet.querySelector('.export-inner'); if(inner) inner.classList.add('birthday-today'); }
+  await captureAndDownload(sheet, `Birthday_${bRec.name.replace(/\s+/g,'_')}_${theme}.jpg`);
+}
+
+/* Export birthday individual quick (not using theme chooser) */
+function exportBirthdayIndividual(bRec){
+  openBirthdayExportChoice(bRec);
+}
+
+/* ========== Posting / Other helpers ========== */
+/* posting view and checkboxes handled earlier in renderPostingView */ 
+
+/* schedule reminder sound (simple beep) */
+let audioCtx = null;
+function playBeep(){ try{ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type='sine'; o.frequency.value=880; o.connect(g); g.connect(audioCtx.destination); g.gain.value=0.0001; o.start(); g.gain.exponentialRampToValueAtTime(0.12, audioCtx.currentTime+0.02); setTimeout(()=>{ g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.8); setTimeout(()=>o.stop(),900); }, 600); }catch(e){ console.warn('audio err',e); } }
+setInterval(()=>{
+  if(localStorage.getItem('srcLogged')!=='yes') return;
+  const now = new Date(); const cur = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  SCHEDULES.forEach(s=>{
+    const key = 'notified_'+s.uid+'_'+(s.date||'');
+    if(s.date === new Date().toISOString().slice(0,10) && s.time === cur && !sessionStorage.getItem(key)){
+      playBeep(); sessionStorage.setItem(key,'1'); showToast(`Reminder: ${s.taskId} — ${s.time}`);
+    }
+  });
+}, 30*1000);
+
+/* small toast */
+function showToast(msg){ const t = document.createElement('div'); t.className='toast'; t.style.position='fixed'; t.style.top='90px'; t.style.right='30px'; t.style.background='linear-gradient(135deg,#10b981,#059669)'; t.style.color='white'; t.style.padding='12px 18px'; t.style.borderRadius='10px'; t.style.zIndex=99999; t.innerText=msg; document.body.appendChild(t); setTimeout(()=> t.style.opacity='0',3000); setTimeout(()=> t.remove(),3600); }
+
+/* initial render */
+renderAll();
+
+</script>
+</body>
+</html>
