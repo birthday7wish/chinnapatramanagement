@@ -494,11 +494,20 @@ function renderSchedulesView(){
 }
 
 /* POSTING */
-function renderPostingView(){
-  const list = document.getElementById('postingList'); list.innerHTML='';
-  const filter = document.getElementById('postingDateFilter').value || '';
-  const chosen = filter || new Date().toISOString().slice(0,10); document.getElementById('postingDateFilter').value = chosen;
-  const entries = SCHEDULES.filter(s=> s.date===chosen);
+function renderPostingView() {
+  const list = document.getElementById('postingList');
+  list.innerHTML = '';
+
+  // Read current filter
+  let chosen = document.getElementById('postingDateFilter').value;
+
+  // If empty (first load), set to today's date
+  if (!chosen) {
+    chosen = new Date().toISOString().slice(0, 10);
+    document.getElementById('postingDateFilter').value = chosen;
+  }
+
+  const entries = SCHEDULES.filter(s => s.date === chosen);
   if(entries.length===0){ list.innerHTML = `<div class="muted">No schedules for ${chosen}</div>`; return; }
   entries.forEach(s=>{ let post = POSTINGS.find(p=>p.scheduleUid===s.uid && p.date===chosen); if(!post){ post = {scheduleUid:s.uid, date:chosen, ig:false, fb:false}; POSTINGS.push(post); localStorage.setItem('POSTINGS', JSON.stringify(POSTINGS)); }
     const card=document.createElement('div'); card.className='card'; card.style.display='flex'; card.style.justifyContent='space-between'; card.style.alignItems='center'; card.style.marginBottom='8px'; card.innerHTML=`<div><div style="font-weight:800">${escapeHtml(s.taskId)} (${escapeHtml(s.type)}) — ${escapeHtml(s.time)}</div><div class="muted" style="margin-top:6px">Artist: ${escapeHtml(s.artist)} | Platform: ${escapeHtml(s.platform)}</div></div><div style="display:flex;gap:8px;align-items:center"><label style="display:flex;flex-direction:column;align-items:center;font-weight:700">IG<br><input type="checkbox" ${post.ig?'checked':''} data-post="${s.uid}" data-which="ig"></label><label style="display:flex;flex-direction:column;align-items:center;font-weight:700">FB<br><input type="checkbox" ${post.fb?'checked':''} data-post="${s.uid}" data-which="fb"></label><button class="btn secondary" data-act="exportSinglePosting" data-uid="${s.uid}">Export Row JPG</button></div>`; list.appendChild(card); });
