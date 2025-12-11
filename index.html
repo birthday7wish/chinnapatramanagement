@@ -356,7 +356,8 @@ const btnLogin = document.getElementById('btnLogin');
 const btnLogout = document.getElementById('btnLogout');
 function updateGreeting(){
   const now = new Date(); const hour = now.getHours(); let greeting='';
-  if(hour>=4 && hour<12) greeting='Good Morning';
+  if(hour>=0 && hour<4) greeting='Good Morning';
+  else if(hour>=4 && hour<12) greeting='Good Morning';
   else if(hour>=12 && hour<16) greeting='Good Afternoon';
   else if(hour>=16 && hour<24) greeting='Good Evening';
   else greeting='Working Late?';
