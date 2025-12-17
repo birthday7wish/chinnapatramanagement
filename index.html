@@ -1,761 +1,1682 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>TEAM SRC × CHINNAPATRA OFFICIAL — Dashboard</title>
+  <meta charset="UTF-8" />
+  <title>Chinnapatra Post Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<!-- html2canvas -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        crossorigin="anonymous" />
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
 
-<style>
-/* ---------- Base ---------- */
-:root{
-  --royal:#1f6feb;
-  --silver:#bfcddb;
-  --sky1:#ffffff;
-  --sky2:#e6f7ff;
-  --accent: linear-gradient(135deg,#1f6feb,#6a9cff);
-  --watermark-opacity: 0.35; /* 35% */
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body,#app{height:100%;font-family:'Poppins',sans-serif;background:linear-gradient(180deg,var(--sky1),var(--sky2));color:#0f172a}
-.container{max-width:1240px;margin:20px auto;padding:18px;min-height:calc(100vh - 40px)}
+  <style>
+    :root {
+      --cp-bg: #f2edff;
+      --cp-bg-alt: #ffffff;
+      --cp-primary: #7a3cff;
+      --cp-primary-soft: #e3d7ff;
+      --cp-accent: #ffca3a;
+      --cp-danger: #ff595e;
+      --cp-success: #8ac926;
+      --cp-text-main: #1f1633;
+    }
 
-/* Topbar */
-.topbar{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.95);padding:14px;border-radius:12px;box-shadow:0 8px 30px rgba(20,20,30,0.06);border-left:6px solid var(--royal)}
-.title{font-weight:800;font-size:18px;background:var(--accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.subtitle{font-size:13px;color:#475569;margin-top:4px}
+    * { box-sizing: border-box; }
 
-/* top-right placeholders (hidden until login) */
-.top-right{display:flex;align-items:center;gap:10px}
-.hidden-before-login{display:none}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--cp-text-main);
+      background:
+        radial-gradient(circle at top left, #fefbff 0, #f2edff 35%, #fff 100%);
+      overflow-x: hidden;
+    }
 
-/* login inline */
-.login-inline{display:flex;align-items:center;gap:8px}
-.login-inline input{padding:8px 10px;border-radius:8px;border:1px solid #e6eefb}
-.login-inline button{padding:8px 12px;border-radius:10px;border:none;background:var(--royal);color:white;font-weight:700}
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes softPulse {
+      0% { box-shadow: 0 0 0 0 rgba(122, 60, 255, 0.2); }
+      70% { box-shadow: 0 0 0 12px rgba(122, 60, 255, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(122, 60, 255, 0); }
+    }
 
-/* layout */
-.layout{display:flex;gap:18px;margin-top:18px}
-.sidebar{width:260px;background:linear-gradient(180deg,#fff,#fbfdff);padding:16px;border-radius:12px;border:1px solid rgba(30,58,138,0.05);box-shadow:0 10px 32px rgba(31,111,235,0.06)}
-.nav{display:flex;flex-direction:column;gap:8px}
-.item{padding:10px;border-radius:10px;font-weight:700;color:#334155;border:2px solid #f1f5f9;background:white;text-align:left}
-.item.active{background:var(--royal);color:white;border:transparent;box-shadow:0 8px 24px rgba(31,111,235,0.18)}
-.main{flex:1;background:rgba(255,255,255,0.95);padding:18px;border-radius:12px;min-height:64vh;box-shadow:0 8px 30px rgba(2,6,23,0.04);border:1px solid #e6eefb}
+    .glass-card {
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 22px;
+      border: 1px solid rgba(122, 60, 255, 0.14);
+      box-shadow:
+        0 24px 60px rgba(31, 24, 76, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.9);
+      animation: fadeUp .45s ease-out;
+    }
 
-/* panel header & actions */
-.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.panel-head h2{font-size:18px;font-weight:800;background:var(--accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.panel-actions{display:flex;gap:8px;align-items:center}
+    .cp-auth-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 12px;
+    }
 
-/* grid & cards */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
-.card{background:white;border-radius:12px;padding:12px;border:1px solid #eef6ff;box-shadow:0 6px 18px rgba(31,111,235,0.03)}
-.card .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.badge{padding:6px 10px;border-radius:999px;font-weight:700;color:white;background:var(--royal);font-size:13px}
+    .cp-auth-card {
+      max-width: 440px;
+      width: 100%;
+      padding: 26px 26px 20px;
+      position: relative;
+      overflow: hidden;
+    }
 
-/* buttons */
-.btn{padding:8px 12px;border-radius:8px;border:none;background:var(--royal);color:white;font-weight:700}
-.btn.secondary{background:linear-gradient(135deg,#94a3b8,#64748b)}
-.btn.danger{background:linear-gradient(135deg,#ef4444,#dc2626)}
-.muted{color:#64748b;font-weight:600;font-size:14px}
+    .cp-auth-card::before {
+      content: "";
+      position: absolute;
+      width: 190px;
+      height: 190px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(122,60,255,0.16), transparent 60%);
+      top: -70px;
+      right: -60px;
+      pointer-events: none;
+    }
 
-.row{display:flex;gap:8px;align-items:center}
-.input,select{padding:8px 10px;border-radius:8px;border:1px solid #e6eefb}
-.full{width:100%}
+    .cp-logo-badge {
+      width: 60px;
+      height: 60px;
+      border-radius: 20px;
+      background: radial-gradient(circle at 10% 0, #ffe29f 0, #ffa99f 40%, #7a3cff 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 22px;
+      box-shadow: 0 14px 36px rgba(122, 60, 255, 0.6);
+      animation: softPulse 2.1s infinite;
+    }
 
-/* modal */
-.modal-wrap{position:fixed;left:0;top:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;z-index:9999;background:rgba(4,6,12,0.45)}
-.modal{background:white;padding:18px;border-radius:12px;min-width:320px;max-width:780px;box-shadow:0 30px 80px rgba(2,6,23,0.25)}
-.modal h3{margin-bottom:10px;font-size:18px}
-.modal .form-row{margin-bottom:12px}
-.modal .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:10px}
+    .cp-auth-title {
+      font-weight: 700;
+      font-size: 1.26rem;
+      margin-top: 10px;
+    }
 
-/* export sheet portrait */
-#exportHidden{position:fixed;left:-9999px;top:-9999px;width:1400px;padding:0;background:white}
-.export-sheet{width:100%;min-height:2000px;background:linear-gradient(180deg,#fff,#eaf8ff);border-radius:36px;padding:0;position:relative;overflow:hidden}
-.export-frame{padding:34px;border-radius:28px;box-sizing:border-box}
-.export-outer{width:100%;height:100%;border-radius:18px;background:linear-gradient(180deg,#fff,#ffffff);padding:28px;box-shadow:0 20px 60px rgba(20,30,80,0.08);border:14px solid var(--royal);position:relative;box-sizing:border-box}
-.export-inner{height:100%;border-radius:8px;border:6px solid var(--silver);background:linear-gradient(180deg,#fff,#f7fbff);overflow:hidden;padding:26px;box-sizing:border-box}
+    .cp-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(122, 60, 255, 0.08);
+      color: var(--cp-primary);
+    }
 
-.export-watermark {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 28px;
-  transform: rotate(-10deg);
-  pointer-events: none;
-  user-select: none;
-  z-index: 0;
-}
+    .cp-form-control {
+      border-radius: 999px;
+      border: 1px solid #e0d4ff;
+      padding-inline: 14px;
+      padding-block: 8px;
+      font-size: 14px;
+      background-color: rgba(255,255,255,0.9);
+    }
 
-.export-watermark .wm-row {
-  width: max-content;
-  white-space: nowrap;
-  margin: 0 auto;
-  font-size: 74px;
-  font-weight: 900;
-  text-transform: uppercase;
-  font-family: 'Times New Roman', serif;
-  letter-spacing: 4px;
-  color: rgba(0,0,0,0.10); /* EXACT 25% opacity */
-}
+    .cp-form-control:focus {
+      outline: none;
+      border-color: var(--cp-primary);
+      box-shadow: 0 0 0 1px rgba(122, 60, 255, 0.25);
+    }
 
+    .cp-btn-primary {
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #7a3cff, #b43cff);
+      color: #fff;
+      font-weight: 600;
+      padding-block: 9px;
+      box-shadow: 0 10px 28px rgba(122, 60, 255, 0.5);
+      transition: transform .12s ease-out, box-shadow .12s ease-out;
+    }
 
+    .cp-btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 34px rgba(122, 60, 255, 0.55);
+    }
 
-/* export header */
-.exp-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;border-bottom:1px dashed rgba(30,58,138,0.06)}
-.exp-title{font-weight:900;font-size:34px;color:var(--royal)}
-.exp-meta{font-weight:600;color:#334155;text-align:right}
-.exp-logo{width:120px;height:80px;border-radius:8px;overflow:hidden;background:white;border:1px solid #eef6ff;display:flex;align-items:center;justify-content:center}
+    .cp-badge-role {
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .cp-role-superadmin { background: #1f2937; color: #fef3c7; }
+    .cp-role-assigner   { background: #f97316; color: #fff7ed; }
+    .cp-role-scheduler  { background: #06b6d4; color: #ecfeff; }
+    .cp-role-poster     { background: #22c55e; color: #ecfdf5; }
+    .cp-role-viewer     { background: #4f46e5; color: #eef2ff; }
 
-/* export rows */
-.exp-section{padding:18px 0}
-.exp-row{display:flex;justify-content:space-between;gap:12px;padding:12px;border-radius:10px;background:linear-gradient(90deg,rgba(31,111,235,0.03), rgba(106,156,255,0.03));margin-bottom:10px}
-.exp-left{font-weight:700;color:#0f172a}
-.exp-right{color:#334155;font-weight:600}
-.exp-footer{padding:12px;text-align:center;border-top:1px dashed rgba(30,58,138,0.06);font-weight:800;color:rgba(10,20,50,0.6)}
+    .cp-app-shell { display: none; min-height: 100vh; }
 
-/* profile popup */
-.profile-icon{width:44px;height:44px;border-radius:50%;cursor:pointer;border:2px solid #1a3d7c;display:flex;align-items:center;justify-content:center}
-.profile-popup{position:absolute;top:76px;right:24px;background:white;padding:14px;border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,0.12);width:260px;display:none;z-index:9999}
-.profile-popup.show{display:block;animation:popupFade .28s}
-.close-profile-btn{background:#1a3d7c;color:white;padding:8px 10px;border-radius:8px;border:none;margin-top:10px;cursor:pointer}
-@keyframes popupFade{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+    .cp-sidebar {
+      background: radial-gradient(circle at top, #2f1a4d, #1a0f30);
+      color: #e5e0ff;
+      min-height: 100vh;
+      width: 238px;
+      position: fixed;
+      inset-block: 0;
+      inset-inline-start: 0;
+      padding: 18px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
 
-/* login animation */
-.dashboard{opacity:0;transform:translateY(20px);transition:.5s}
-.dashboard.showDash{opacity:1;transform:translateY(0)}
+    .cp-sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .cp-sidebar-logo span {
+      font-weight: 700;
+      letter-spacing: .08em;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #c4b5fd;
+    }
 
-/* dark mode */
-body.dark{background:#071226;color:#eef6ff}
-body.dark .main{background:rgba(255,255,255,0.03);backdrop-filter:blur(6px)}
-body.dark .card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.03)}
-.theme-toggle{padding:6px 12px;border-radius:20px;cursor:pointer;border:1px solid rgba(0,0,0,0.05);background:#fff}
+    .cp-nav-pill {
+      border-radius: 999px;
+      padding: 8px 11px;
+      font-size: 13px;
+      color: #ede9fe;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background .1s ease-out, transform .1s ease-out, border-color .1s ease-out;
+    }
 
-/* Birthday decoration placeholders inside export (static visuals) */
-.decoration{position:relative;margin-bottom:14px}
-.dec-glitter{background-image:radial-gradient(circle at 10% 10%, rgba(255,255,255,0.8) 0px, rgba(255,255,255,0.0) 10px), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.85) 0px, rgba(255,255,255,0) 12px); background-size:60px 60px, 80px 80px; opacity:0.95}
-.dec-confetti{display:flex;flex-wrap:wrap;gap:6px}
-.dec-confetti .dot{width:12px;height:18px;border-radius:3px;transform:rotate(20deg);box-shadow:0 2px 4px rgba(0,0,0,0.08)}
-.dec-balloons{display:flex;gap:14px;align-items:flex-end}
-.dec-balloons .balloon{width:78px;height:110px;border-radius:50% 50% 45% 45%;position:relative;display:flex;align-items:center;justify-content:center}
-.dec-cake{display:flex;flex-direction:column;align-items:center;gap:6px}
+    .cp-nav-pill:hover {
+      background: rgba(248, 250, 252, 0.08);
+      transform: translateX(2px);
+    }
 
-/* birthday-today special */
-.birthday-today{border:4px solid gold !important;background:linear-gradient(135deg,#fff4c2,#ffd700) !important;color:#7a5600 !important;box-shadow:0 0 20px rgba(255,215,0,0.6) !important;position:relative}
-.birthday-today::after{content:'👑';font-size:36px;position:absolute;top:-18px;right:-12px}
+    .cp-nav-pill.active {
+      background: rgba(248, 250, 252, 0.16);
+      border-color: rgba(248, 250, 252, 0.28);
+    }
 
-/* small responsive */
-@media(max-width:900px){
-  .layout{flex-direction:column}
-  .sidebar{width:100%}
-  .grid{grid-template-columns:1fr}
-  .profile-popup{right:12px}
-}
-</style>
+    .cp-main {
+      margin-left: 238px;
+      padding: 16px 18px 40px;
+    }
+
+    .cp-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .cp-section-title {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .cp-kpi-card {
+      border-radius: 18px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(239,234,255,0.96));
+      border: 1px solid rgba(216,203,255,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      box-shadow: 0 12px 30px rgba(31, 24, 76, 0.08);
+    }
+
+    .cp-kpi-value {
+      font-weight: 700;
+      font-size: 17px;
+    }
+
+    .cp-tag-urgent {
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 11px;
+      background: rgba(255, 89, 94, 0.08);
+      color: var(--cp-danger);
+    }
+    .cp-tag-ok {
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 11px;
+      background: rgba(138, 201, 38, 0.08);
+      color: var(--cp-success);
+    }
+
+    .table-sm > :not(caption) > * > * {
+      padding-block: 3px;
+      padding-inline: 6px;
+      font-size: 12px;
+    }
+
+    .cp-pill-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 3px 7px;
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .cp-pill-danger { background: rgba(239, 68, 68, 0.1); color: #b91c1c; }
+    .cp-pill-success { background: rgba(22, 163, 74, 0.12); color: #166534; }
+    .cp-pill-warning { background: rgba(245, 158, 11, 0.12); color: #92400e; }
+
+    .cp-section-card {
+      border-radius: 18px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid #e4ddff;
+      padding: 12px 12px 10px;
+      margin-bottom: 12px;
+      box-shadow: 0 10px 24px rgba(31,24,76,0.06);
+      animation: fadeUp .3s ease-out;
+    }
+
+    .cp-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .cp-section-header h6 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .cp-input-chip {
+      font-size: 11px;
+      border-radius: 999px;
+      background: #f4f1ff;
+      padding: 3px 8px;
+    }
+
+    .cp-scroll-y {
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .cp-badge-status {
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .cp-st-assigned { background: #fee2e2; color: #b91c1c; }
+    .cp-st-submitted { background: #fffbeb; color: #92400e; }
+    .cp-st-approved { background: #e0f2fe; color: #0369a1; }
+    .cp-st-scheduled { background: #e0f7fa; color: #006064; }
+    .cp-st-facebook_posted { background: #dbeafe; color: #1d4ed8; }
+    .cp-st-instagram_posted { background: #fce7f3; color: #9d174d; }
+    .cp-st-completed { background: #dcfce7; color: #166534; }
+
+    .cp-toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      min-width: 230px;
+      max-width: 320px;
+      z-index: 9999;
+      display: none;
+    }
+    .cp-toast-inner {
+      border-radius: 18px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid rgba(122,60,255,0.32);
+      box-shadow: 0 16px 42px rgba(31,24,76,0.25);
+      padding: 10px 12px;
+      font-size: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      animation: fadeUp .3s ease-out;
+    }
+
+    @media (max-width: 768px) {
+      .cp-sidebar {
+        transform: translateX(-100%);
+        transition: transform .25s ease-out;
+        z-index: 1040;
+      }
+      .cp-sidebar.show {
+        transform: translateX(0);
+      }
+      .cp-main {
+        margin-left: 0;
+        margin-top: 64px;
+      }
+    }
+    
+  </style>
 </head>
 <body>
-  <div id="app" class="container">
 
-    <!-- TOPBAR -->
-    <div class="topbar">
+<!-- LOGIN SCREEN -->
+<div id="authScreen" class="cp-auth-wrapper">
+  <div class="glass-card cp-auth-card">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <div class="cp-logo-badge">
+        <img src="https://scontent.fccu2-1.fna.fbcdn.net/v/t39.30808-6/581658030_122153183462624100_5274430875005336625_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=30gB-sRgwnsQ7kNvwEimkYz&_nc_oc=AdkvOZhAZiovBUffviOiw5M7KtVx3OgA4043jt2T5wij9gwo6MXohtAIforN5LW1SOUGcRamHxjz7MEtRjKUY30Y&_nc_zt=23&_nc_ht=scontent.fccu2-1.fna&_nc_gid=cuDdqWhcv0pJpezxWdzCNQ&oh=00_AfnYyjBdempzdakkKl355ZPoFhZ3AO_ce-S2WXpqkht2gQ&oe=69484D6A" alt="stars icon" style="width:60px; height:60px;">
+
+        
+
+      </div>
       <div>
-        <div class="title">TEAM SRC × CHINNAPATRA OFFICIAL</div>
-        <div class="subtitle">Post Management · Exports: Royal Blue / Silver · Portrait</div>
-      </div>
-
-      <div class="top-right">
-        <!-- welcome and controls (hidden until login) -->
-        <div id="welcomeUser" class="hidden-before-login" style="font-weight:700;color:#123456"></div>
-        <button id="themeToggle" class="theme-toggle hidden-before-login" title="Toggle theme">🌙 Dark</button>
-
-        <div id="profileWrap" class="hidden-before-login" style="position:relative">
-          <div id="profileIcon" class="profile-icon">SRC</div>
-          <div id="profilePopup" class="profile-popup">
-            <div style="font-weight:900">TEAM SRC</div>
-            <div style="margin-top:8px;font-size:13px;color:#475569">Access: Admin</div>
-            <div style="margin-top:8px;font-size:13px;color:#475569">System: CHINNAPATRA OFFICIAL</div>
-            <div id="loginTime" style="margin-top:8px;font-size:13px;color:#475569"></div>
-            <button id="closeProfile" class="close-profile-btn">Close</button>
-          </div>
-        </div>
-
-        <!-- LOGIN AREA (visible before login) -->
-        <div class="login-inline" id="loginArea">
-          <input id="loginUser" placeholder="TEAM SRC" />
-          <input id="loginPass" placeholder="SRC@26" type="password" />
-          <button id="btnLogin" class="btn">Login</button>
-          <button id="btnLogout" class="btn secondary" style="display:none">Logout</button>
+        <div class="cp-auth-title">Chinnapatra Panel</div>
+        <div class="cp-chip">
+          <i class="bi bi-shield-lock"></i>
+          Admin & Artist Login
         </div>
       </div>
     </div>
 
-    <!-- LAYOUT -->
-    <div class="layout" style="margin-top:18px">
-      <!-- SIDEBAR -->
-      <aside class="sidebar hidden-before-login" id="sidebar">
-        <div style="font-weight:800;margin-bottom:12px">NAVIGATION</div>
-        <div class="nav">
-          <div class="item active" data-panel="panelTasks">Tasks</div>
-          <div class="item" data-panel="panelSchedules">Schedules</div>
-          <div class="item" data-panel="panelPosting">Posting Management</div>
-          <div class="item" data-panel="panelBirthdays">Birthdays</div>
-          <div class="item" data-panel="panelStats">Statistics</div>
-          <div class="item" data-panel="panelExport">Export</div>
-        </div>
+    <!-- ADMIN LOGIN -->
+    <form id="loginForm" class="mt-2">
+      <div class="mb-2">
+        <label class="form-label mb-1 small">Admin Username</label>
+        <input type="text" id="loginUsername" class="form-control cp-form-control" required />
+      </div>
+      <div class="mb-2">
+        <label class="form-label mb-1 small">Password</label>
+        <input type="password" id="loginPassword" class="form-control cp-form-control" required />
+      </div>
+      <div class="mb-1 text-muted" style="font-size:11px;">
+        Demo: <span class="badge text-bg-dark"></span>
+      </div>
+      <div class="text-danger small mb-2" id="loginError" style="display:none;"></div>
+      <button type="submit" class="btn w-100 cp-btn-primary">
+        <i class="bi bi-box-arrow-in-right me-1"></i> Admin Login
+      </button>
+    </form>
 
-        <div style="margin-top:16px">
-          <div style="font-weight:800;margin-bottom:8px">Logo (for exports)</div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <div id="logoBox" style="width:84px;height:64px;border-radius:8px;border:1px dashed #e6eefb;display:flex;align-items:center;justify-content:center;background:white">+</div>
-            <input id="logoFile" type="file" accept="image/*" style="display:none">
-            <button class="btn secondary" id="btnChooseLogo">Choose</button>
-            <button class="btn" id="btnRemoveLogo" style="background:linear-gradient(135deg,#ef4444,#dc2626)">Remove</button>
-          </div>
-        </div>
-      </aside>
+    <hr class="my-3">
 
-      <!-- MAIN (hidden until login) -->
-      <main class="main dashboard" id="dashboard" style="display:none">
-        <!-- TASKS -->
-        <section id="panelTasks" class="panel active">
-          <div class="panel-head">
-            <h2>Tasks</h2>
-            <div class="panel-actions">
-              <button class="btn" id="addTaskBtn">Add Task</button>
-            </div>
-          </div>
-          <div class="grid" id="tasksGrid"></div>
-        </section>
+    <!-- ARTIST LOGIN -->
+    <button type="button" id="btnShowArtistLogin" class="btn btn-sm btn-outline-secondary w-100 mb-2">
+      <i class="bi bi-person-badge"></i> Artist Login
+    </button>
 
-        <!-- SCHEDULES -->
-        <section id="panelSchedules" class="panel" style="display:none">
-          <div class="panel-head">
-            <h2>Schedules (Add Only — No Status)</h2>
-            <div class="panel-actions">
-              <button class="btn" id="addScheduleBtn">Add Schedule</button>
-            </div>
-          </div>
-          <div id="schedulesContainer"></div>
-        </section>
+    <form id="artistLoginForm" class="mt-2" style="display:none;">
+      <div class="mb-2">
+        <label class="form-label mb-1 small">Artist Username</label>
+        <input type="text" id="artistLoginUsername" class="form-control cp-form-control" />
+      </div>
+      <div class="mb-2">
+        <label class="form-label mb-1 small">Password</label>
+        <input type="password" id="artistLoginPassword" class="form-control cp-form-control" />
+      </div>
+      <div class="text-danger small mb-2" id="artistLoginError" style="display:none;"></div>
+      <button type="submit" class="btn btn-sm btn-dark w-100">
+        <i class="bi bi-box-arrow-in-right me-1"></i> Enter Artist Panel
+      </button>
+    </form>
+  </div>
+</div>
 
-        <!-- POSTING -->
-        <section id="panelPosting" class="panel" style="display:none">
-          <div class="panel-head">
-            <h2>Posting Management (Day-wise)</h2>
-            <div class="panel-actions">
-              <button class="btn" id="exportPostingDayBtn">Export Posting (Selected Day)</button>
-              <input type="date" id="postingDateFilter" class="input" />
-            </div>
-          </div>
-          <div id="postingList"></div>
-        </section>
-
-        <!-- BIRTHDAYS -->
-        <section id="panelBirthdays" class="panel" style="display:none">
-          <div class="panel-head">
-            <h2>Birthdays</h2>
-            <div class="panel-actions">
-              <button class="btn" id="addBirthdayBtn">Add Birthday</button>
-              <button class="btn secondary" id="exportAllBirthdays">Export All Birthdays</button>
-            </div>
-          </div>
-          <div id="birthdaysList" class="grid"></div>
-        </section>
-
-        <!-- STATS -->
-        <section id="panelStats" class="panel" style="display:none">
-          <div class="panel-head">
-            <h2>Statistics</h2>
-            <div class="panel-actions">
-              <button class="btn" id="exportTaskStats">Export Task Stats</button>
-              <button class="btn" id="exportScheduleStats">Export Schedule Stats</button>
-              <button class="btn" id="exportPostingStats">Export Posting Stats</button>
-              <button class="btn" id="exportBirthdayStats">Export Birthday Stats</button>
-            </div>
-          </div>
-          <div class="grid">
-            <div class="card">
-              <div class="head"><div class="muted">Total Tasks</div><div class="badge" id="statTasks">0</div></div>
-              <div style="margin-top:8px" id="taskListSmall"></div>
-            </div>
-            <div class="card">
-              <div class="head"><div class="muted">Total Schedules</div><div class="badge" id="statSchedules">0</div></div>
-              <div style="margin-top:8px" id="scheduleListSmall"></div>
-            </div>
-            <div class="card">
-              <div class="head"><div class="muted">Total Birthdays</div><div class="badge" id="statBirthdays">0</div></div>
-              <div style="margin-top:8px" id="birthdayListSmall"></div>
-            </div>
-          </div>
-        </section>
-
-        <!-- EXPORT -->
-        <section id="panelExport" class="panel" style="display:none">
-          <div class="panel-head">
-            <h2>Export Center</h2>
-            <div class="panel-actions">
-              <button class="btn" id="exportSchedulesAll">Export All Schedules (Portrait)</button>
-              <button class="btn" id="exportPostingAll">Export All Posting (Portrait)</button>
-              <button class="btn" id="exportBirthdaysAll">Export Birthdays (Portrait)</button>
-            </div>
-          </div>
-          <div class="muted">Choose an export type — all exports are portrait, include header & logo & watermark.</div>
-        </section>
-
-      </main>
+<!-- APP SHELL -->
+<div id="appShell" class="cp-app-shell">
+  <aside id="cp-sidebar" class="cp-sidebar">
+    <div class="cp-sidebar-logo">
+      <div class="cp-logo-badge" style="width:40px;height:40px;font-size:15px;animation:none;">
+        <img src="https://scontent.fccu2-1.fna.fbcdn.net/v/t39.30808-6/581658030_122153183462624100_5274430875005336625_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=30gB-sRgwnsQ7kNvwEimkYz&_nc_oc=AdkvOZhAZiovBUffviOiw5M7KtVx3OgA4043jt2T5wij9gwo6MXohtAIforN5LW1SOUGcRamHxjz7MEtRjKUY30Y&_nc_zt=23&_nc_ht=scontent.fccu2-1.fna&_nc_gid=cuDdqWhcv0pJpezxWdzCNQ&oh=00_AfnYyjBdempzdakkKl355ZPoFhZ3AO_ce-S2WXpqkht2gQ&oe=69484D6A" alt="stars icon" style="width:40px; height:40px;">
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;">Chinnapatra</div>
+        <span>Post Management</span>
+      </div>
     </div>
 
-  </div>
+    <span class="text-uppercase text-muted" style="font-size:10px;letter-spacing:.12em;">Workflow</span>
+    <div class="d-flex flex-column gap-1 mt-1" id="cp-nav">
+      <div class="cp-nav-pill active" data-section="dashboard">
+        <i class="bi bi-speedometer2"></i><span>Dashboard</span>
+      </div>
+      <div class="cp-nav-pill" data-section="assigner">
+        <i class="bi bi-clipboard-check"></i><span>Assign & Approve</span>
+      </div>
+      <div class="cp-nav-pill" data-section="scheduler">
+        <i class="bi bi-calendar2-week"></i><span>Schedule</span>
+      </div>
+      <div class="cp-nav-pill" data-section="poster">
+        <i class="bi bi-send-check"></i><span>Posting</span>
+      </div>
+      <div class="cp-nav-pill" data-section="viewer">
+        <i class="bi bi-graph-up-arrow"></i><span>Analytics</span>
+      </div>
+      <div class="cp-nav-pill" data-section="admin">
+        <i class="bi bi-gear"></i><span>SuperAdmin</span>
+      </div>
+      <div class="cp-nav-pill" data-section="artist-panel">
+        <i class="bi bi-brush"></i><span>Artist Panel</span>
+      </div>
+    </div>
 
-  <!-- modal -->
-  <div class="modal-wrap" id="modalWrap">
-    <div class="modal" id="modalBox">
-      <h3 id="modalTitle">Modal</h3>
-      <div id="modalBody"></div>
-      <div class="actions" id="modalActions"></div>
+    <div class="mt-auto pt-2 border-top border-secondary-subtle">
+      <div class="d-flex align-items-center justify-content-between mb-1">
+        <span style="font-size:11px;">Logged in as</span>
+        <span id="userRoleBadge" class="cp-badge-role cp-role-viewer">VIEWER</span>
+      </div>
+      <div class="d-flex align-items-center justify-content-between">
+        <span id="userNameLabel" style="font-size:12px;font-weight:500;">—</span>
+        <button id="btnLogout" class="btn btn-sm btn-outline-light rounded-pill px-2 py-0" style="font-size:11px;">
+          <i class="bi bi-box-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="cp-main">
+    <header class="cp-topbar">
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-sm btn-outline-secondary d-md-none" id="btn-toggle-sidebar">
+          <i class="bi bi-list"></i>
+        </button>
+        <div>
+          <div class="cp-section-title" id="pageTitle">Dashboard</div>
+          <div class="text-muted" style="font-size:11px;">FB / IG workflow with task codes</div>
+        </div>
+      </div>
+      <div class="d-flex gap-1">
+        <span id="tagUrgent" class="cp-tag-urgent d-none">Urgent tasks</span>
+        <span id="tagOk" class="cp-tag-ok d-none">All on time</span>
+      </div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <section id="section-dashboard">
+      <div class="row g-2 mb-1">
+        <div class="col-6 col-md-3">
+          <div class="cp-kpi-card">
+            <div>
+              <div class="text-muted" style="font-size:11px;">Total Tasks</div>
+              <div class="cp-kpi-value" id="kpiTotalTasks">0</div>
+            </div>
+            <i class="bi bi-clipboard-data text-primary"></i>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="cp-kpi-card">
+            <div>
+              <div class="text-muted" style="font-size:11px;">Scheduled Posts</div>
+              <div class="cp-kpi-value" id="kpiScheduledPosts">0</div>
+            </div>
+            <i class="bi bi-calendar-check text-info"></i>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="cp-kpi-card">
+            <div>
+              <div class="text-muted" style="font-size:11px;">FB Pending</div>
+              <div class="cp-kpi-value text-danger" id="kpiFacebookPending">0</div>
+            </div>
+            <i class="bi bi-facebook text-primary"></i>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="cp-kpi-card">
+            <div>
+              <div class="text-muted" style="font-size:11px;">Completed</div>
+              <div class="cp-kpi-value text-success" id="kpiCompleted">0</div>
+            </div>
+            <i class="bi bi-check-circle text-success"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-2">
+        <div class="col-md-6">
+          <div class="cp-section-card">
+            <div class="cp-section-header">
+              <h6>Urgent Tasks</h6>
+              <span class="cp-input-chip"><i class="bi bi-lightning-charge-fill text-warning"></i> Normal / Urgent</span>
+            </div>
+            <div class="cp-scroll-y">
+              <table class="table table-sm align-middle">
+                <thead>
+                  <tr>
+                    <th>Code</th>
+                    <th>Type</th>
+                    <th>Artists</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tblUrgentTasks"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="cp-section-card">
+            <div class="cp-section-header">
+              <h6>Upcoming Posts</h6>
+              <span class="cp-input-chip"><i class="bi bi-stopwatch"></i> Next slots</span>
+            </div>
+            <div class="cp-scroll-y">
+              <table class="table table-sm align-middle">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Code</th>
+                    <th>Platform</th>
+                  </tr>
+                </thead>
+                <tbody id="tblUpcomingPosts"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ASSIGNER -->
+    <section id="section-assigner" class="d-none">
+      <div class="cp-section-card">
+        <div class="cp-section-header">
+          <h6>New Task (Assigner)</h6>
+          <span class="cp-input-chip"><i class="bi bi-shield-check"></i> Quality Owner</span>
+        </div>
+        <form id="formNewTask" class="row g-2">
+          <div class="col-md-4">
+            <label class="form-label small mb-1">Task Type</label>
+            <select id="taskTypeSelect" class="form-select form-select-sm">
+              <option value="">Select type</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small mb-1">Urgency</label>
+            <select id="taskUrgency" class="form-select form-select-sm">
+              <option value="normal">Normal</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small mb-1">Submission Source</label>
+            <select id="taskSource" class="form-select form-select-sm">
+              <option value="system">System</option>
+              <option value="whatsapp">WhatsApp</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label small mb-1">Role-wise Instructions</label>
+            <textarea id="taskInstructions" class="form-control form-control-sm" rows="2"
+              placeholder="Short brief for Poster / Scheduler / others"></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label small mb-1">Assign Artists & Roles</label>
+            <div class="d-flex gap-1 mb-1">
+              <select id="taskArtistSelect" class="form-select form-select-sm">
+                <option value="">Artist</option>
+              </select>
+              <select id="taskArtistRoleSelect" class="form-select form-select-sm" style="max-width:120px;">
+                <option value="Poster">Poster</option>
+                <option value="Scheduler">Scheduler</option>
+                <option value="Viewer">Viewer</option>
+              </select>
+              <button type="button" id="btnAddArtistToTask" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-plus"></i>
+              </button>
+            </div>
+            <div id="selectedArtistsForTask" class="small text-secondary">No artist added.</div>
+          </div>
+          <div class="col-12 d-flex justify-content-end">
+            <button type="submit" class="btn btn-sm btn-primary rounded-pill">
+              <i class="bi bi-clipboard-plus me-1"></i> Create Task
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="cp-section-card">
+        <div class="cp-section-header">
+          <h6>Pending Approval</h6>
+          <span class="cp-input-chip"><i class="bi bi-hourglass-split"></i> Awaiting Approve</span>
+        </div>
+        <div class="cp-scroll-y">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th>Urgency</th>
+                <th>Artists</th>
+                <th>Source</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="tblPendingApproval"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCHEDULER -->
+    <section id="section-scheduler" class="d-none">
+      <div class="cp-section-card">
+        <div class="cp-section-header">
+          <h6>Schedule from Approved Tasks</h6>
+          <span class="cp-input-chip"><i class="bi bi-calendar-plus"></i> Task Code Mandatory</span>
+        </div>
+        <form id="formSchedule" class="row g-2">
+          <div class="col-md-4">
+            <label class="form-label small mb-1">Approved Task</label>
+            <select id="scheduleTaskSelect" class="form-select form-select-sm">
+              <option value="">Select approved</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small mb-1">Date</label>
+            <input type="date" id="scheduleDate" class="form-control form-control-sm" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small mb-1">Time Slots (comma)</label>
+            <input type="text" id="scheduleTimeSlots" class="form-control form-control-sm"
+              placeholder="11:00,15:30" />
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small mb-1">Platform</label>
+            <select id="schedulePlatform" class="form-select form-select-sm">
+              <option value="facebook">FB</option>
+              <option value="instagram">IG</option>
+              <option value="both">FB + IG</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small mb-1">Post Title</label>
+            <input type="text" id="scheduleTitle" class="form-control form-control-sm" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small mb-1">Facebook Artist</label>
+            <select id="scheduleFacebookArtist" class="form-select form-select-sm">
+              <option value="">Optional</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small mb-1">Instagram ID</label>
+            <input type="text" id="scheduleInstagramId" class="form-control form-control-sm"
+              placeholder="@handle (optional)" />
+          </div>
+          <div class="col-12 d-flex justify-content-end">
+            <button type="submit" class="btn btn-sm btn-primary rounded-pill">
+              <i class="bi bi-calendar2-plus me-1"></i> Add Schedule
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="cp-section-card">
+        <div class="cp-section-header">
+          <h6>Today & Upcoming Schedules</h6>
+          <span class="cp-input-chip"><i class="bi bi-whatsapp"></i> Free WA reminder</span>
+        </div>
+        <div class="cp-scroll-y">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Code</th>
+                <th>Platf.</th>
+                <th>WA</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tblSchedules"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- POSTER -->
+    <section id="section-poster" class="d-none">
+      <div class="cp-section-card">
+        <div class="cp-section-header">
+          <h6>Posting Queue</h6>
+          <span class="cp-input-chip"><i class="bi bi-broadcast-pin"></i> Mark FB / IG / Both</span>
+        </div>
+        <div class="cp-scroll-y">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Task Code</th>
+                <th>Title</th>
+                <th>Platform</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="tblPostingQueue"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEWER -->
+    <section id="section-viewer" class="d-none">
+      <div class="cp-section-card">
+        <div class="cp-section-header">
+          <h6>Performance Snapshot</h6>
+          <span class="cp-input-chip"><i class="bi bi-bar-chart-line"></i> Tasks & Posts</span>
+        </div>
+        <div class="row g-2">
+          <div class="col-md-4">
+            <div class="cp-kpi-card">
+              <div>
+                <div class="text-muted" style="font-size:11px;">Artists Assigned</div>
+                <div class="cp-kpi-value" id="viewerArtistsAssigned">0</div>
+              </div>
+              <i class="bi bi-people"></i>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="cp-kpi-card">
+              <div>
+                <div class="text-muted" style="font-size:11px;">On-time vs Delayed</div>
+                <div class="cp-kpi-value" id="viewerOnTimeRatio">0/0</div>
+              </div>
+              <i class="bi bi-alarm"></i>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="cp-kpi-card">
+              <div>
+                <div class="text-muted" style="font-size:11px;">Rework / Rejection</div>
+                <div class="cp-kpi-value" id="viewerReworkCount">0</div>
+              </div>
+              <i class="bi bi-arrow-repeat"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cp-section-card">
+        <div class="cp-section-header">
+          <h6>Report Export</h6>
+          <span class="cp-input-chip"><i class="bi bi-filetype-pdf"></i> PDF / JPG</span>
+        </div>
+        <form id="formReportExport" class="row g-2 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label small mb-1">From</label>
+            <input type="date" id="reportFrom" class="form-control form-control-sm" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small mb-1">To</label>
+            <input type="date" id="reportTo" class="form-control form-control-sm" />
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small mb-1">Status</label>
+            <select id="reportStatus" class="form-select form-select-sm">
+              <option value="">All</option>
+              <option value="approved">Approved</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small mb-1">Platform</label>
+            <select id="reportPlatform" class="form-select form-select-sm">
+              <option value="">All</option>
+              <option value="facebook">Facebook</option>
+              <option value="instagram">Instagram</option>
+              <option value="both">Both</option>
+            </select>
+          </div>
+          <div class="col-md-2 d-flex gap-1">
+            <button type="button" id="btnExportPDF" class="btn btn-sm btn-outline-dark w-100">
+              <i class="bi bi-file-earmark-pdf"></i>
+            </button>
+            <button type="button" id="btnExportJPG" class="btn btn-sm btn-outline-secondary w-100">
+              <i class="bi bi-file-earmark-image"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- SUPERADMIN -->
+    <section id="section-admin" class="d-none">
+      <div class="cp-section-card">
+        <div class="cp-section-header">
+          <h6>Users & Artists (SuperAdmin)</h6>
+          <span class="cp-input-chip"><i class="bi bi-incognito"></i> Full Control</span>
+        </div>
+        <div class="row g-2">
+          <div class="col-md-6">
+            <h6 class="small fw-semibold mb-1">Users</h6>
+            <form id="formNewUser" class="row g-1 align-items-end mb-2">
+              <div class="col-4">
+                <label class="form-label small mb-1">Username</label>
+                <input type="text" id="newUserUsername" class="form-control form-control-sm" />
+              </div>
+              <div class="col-4">
+                <label class="form-label small mb-1">Password</label>
+                <input type="text" id="newUserPassword" class="form-control form-control-sm" />
+              </div>
+              <div class="col-3">
+                <label class="form-label small mb-1">Role</label>
+                <select id="newUserRole" class="form-select form-select-sm">
+                  <option>SuperAdmin</option>
+                  <option>Assigner</option>
+                  <option>Scheduler</option>
+                  <option>Poster</option>
+                  <option>Viewer</option>
+                </select>
+              </div>
+              <div class="col-1 d-grid">
+                <button class="btn btn-sm btn-dark"><i class="bi bi-plus"></i></button>
+              </div>
+            </form>
+            <div class="cp-scroll-y">
+              <table class="table table-sm align-middle">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="tblUsers"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <h6 class="small fw-semibold mb-1">Artists</h6>
+            <form id="formNewArtist" class="row g-1 align-items-end mb-2">
+              <div class="col-3">
+                <label class="form-label small mb-1">Name</label>
+                <input type="text" id="newArtistName" class="form-control form-control-sm" />
+              </div>
+              <div class="col-3">
+                <label class="form-label small mb-1">Category</label>
+                <select id="newArtistCategory" class="form-select form-select-sm">
+                  <option value="graphics">Graphics</option>
+                  <option value="onugolpo">Onugolpo</option>
+                  <option value="kobita">Kobita</option>
+                  <option value="photography">Photography</option>
+                  <option value="calligraphy">Calligraphy</option>
+                </select>
+              </div>
+              <div class="col-3">
+                <label class="form-label small mb-1">Phone</label>
+                <input type="text" id="newArtistPhone" class="form-control form-control-sm" />
+              </div>
+              <div class="col-2">
+                <label class="form-label small mb-1">Username</label>
+                <input type="text" id="newArtistUsername" class="form-control form-control-sm" />
+              </div>
+              <div class="col-1 d-grid">
+                <button class="btn btn-sm btn-dark"><i class="bi bi-plus"></i></button>
+              </div>
+            </form>
+            <div class="cp-scroll-y">
+              <table class="table table-sm align-middle">
+                <thead>
+                  <tr>
+                    <th>Artist</th>
+                    <th>Category</th>
+                    <th>Phone</th>
+                  </tr>
+                </thead>
+                <tbody id="tblArtists"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ARTIST PANEL -->
+    <section id="section-artist-panel" class="d-none">
+      <div class="cp-section-card">
+        <div class="cp-section-header">
+          <h6>Artist Tasks</h6>
+          <span class="cp-input-chip"><i class="bi bi-brush"></i> Graphics / Kobita / Onugolpo etc.</span>
+        </div>
+        <div class="cp-scroll-y">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>Task Code</th>
+                <th>Type</th>
+                <th>Your Role</th>
+                <th>Urgency</th>
+                <th>Source</th>
+                <th>Submit</th>
+              </tr>
+            </thead>
+            <tbody id="tblArtistTasks"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- POPUP TOAST -->
+<div id="cp-toast" class="cp-toast">
+  <div class="cp-toast-inner">
+    <div id="cp-toast-icon"><i class="bi bi-info-circle text-primary"></i></div>
+    <div>
+      <div id="cp-toast-title" class="fw-semibold mb-1" style="font-size:12px;">Info</div>
+      <div id="cp-toast-message" style="font-size:11px;">Message</div>
     </div>
   </div>
+</div>
 
-  <!-- hidden export builder -->
-  <div id="exportHidden" aria-hidden="true"></div>
-
+<!-- SUPABASE CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* ===========================
-   DATA MODEL & LOCALSTORAGE
-   =========================== */
-let TASKS = JSON.parse(localStorage.getItem('TASKS') || '[]');
-let SCHEDULES = JSON.parse(localStorage.getItem('SCHEDULES') || '[]');
-let BIRTHDAYS = JSON.parse(localStorage.getItem('BIRTHDAYS') || '[]');
-let POSTINGS = JSON.parse(localStorage.getItem('POSTINGS') || '[]');
-let LOGO = localStorage.getItem('DASH_LOGO') || null;
+  const { createClient } = supabase;
+  const SUPABASE_URL = "https://kaqpmotjrnkbcyjcxhkq.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_y-i-qFDPwPhCox3reyxyFQ_DbyZsGt8";
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY); // [web:59][web:88]
 
-/* uid */
-const uid = ()=> Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  const state = {
+    user: null,        // admin user
+    artist: null,      // artist user
+    selectedTaskArtists: [],
+  };
 
-/* helpers */
-function escapeHtml(s){ if(s===null||s===undefined) return ''; return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-function persistAll(){ localStorage.setItem('TASKS', JSON.stringify(TASKS)); localStorage.setItem('SCHEDULES', JSON.stringify(SCHEDULES)); localStorage.setItem('BIRTHDAYS', JSON.stringify(BIRTHDAYS)); localStorage.setItem('POSTINGS', JSON.stringify(POSTINGS)); if(LOGO) localStorage.setItem('DASH_LOGO', LOGO); renderAll(); }
+  const $ = (id) => document.getElementById(id);
 
-/* UI element references */
-const navItems = document.querySelectorAll('.nav .item');
-navItems.forEach(it=> it.addEventListener('click', ()=>{
-  navItems.forEach(x=>x.classList.remove('active'));
-  it.classList.add('active');
-  document.querySelectorAll('.panel').forEach(p=>p.style.display='none');
-  document.getElementById(it.dataset.panel).style.display='block';
-}));
-
-/* login/logout */
-const btnLogin = document.getElementById('btnLogin');
-const btnLogout = document.getElementById('btnLogout');
-function updateGreeting(){
-  const now = new Date(); const hour = now.getHours(); let greeting='';
-  if(hour>=0 && hour<4) greeting='Good Morning';
-  else if(hour>=4 && hour<12) greeting='Good Morning';
-  else if(hour>=12 && hour<16) greeting='Good Afternoon';
-  else if(hour>=16 && hour<24) greeting='Good Evening';
-  else greeting='Working Late?';
-  document.getElementById('welcomeUser').innerText = `${greeting}, TEAM SRC 👋`;
-}
-function setLoginTime(){ const t = new Date().toLocaleString(); localStorage.setItem('SRC_LOGIN_TIME', t); const el = document.getElementById('loginTime'); if(el) el.innerText = 'Login Time: ' + t; }
-
-/* show/hide before login: hide everything except title and loginArea */
-function showOnlyLoginUI(){
-  // hide top-right controls except loginArea
-  document.querySelectorAll('.hidden-before-login').forEach(el=> el.style.display='none');
-  // hide sidebar & main
-  document.getElementById('sidebar').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'none';
-  // ensure login area visible
-  document.getElementById('loginArea').style.display = 'flex';
-  // hide logout
-  document.getElementById('btnLogout').style.display = 'none';
-  document.getElementById('btnLogin').style.display = 'inline-block';
-  // clear welcome
-  document.getElementById('welcomeUser').innerText = '';
-}
-
-/* show full dashboard after login */
-function showFullUI(){
-  // show top-right controls
-  document.querySelectorAll('.hidden-before-login').forEach(el=> el.style.display='flex');
-  document.getElementById('profileWrap').style.display = 'flex';
-  // show sidebar & dashboard
-  document.getElementById('sidebar').style.display = 'block';
-  document.getElementById('dashboard').style.display = 'block';
-  // hide login inputs (but keep them in DOM)
-  document.getElementById('loginUser').style.display = 'none';
-  document.getElementById('loginPass').style.display = 'none';
-  document.getElementById('btnLogin').style.display = 'none';
-  document.getElementById('btnLogout').style.display = 'inline-block';
-  // greeting and login time
-  updateGreeting(); setLoginTime();
-  // animate dashboard
-  setTimeout(()=> document.getElementById('dashboard').classList.add('showDash'), 50);
-}
-
-/* init on load */
-window.addEventListener('load', ()=>{
-  // theme
-  if(localStorage.getItem('theme') === 'dark'){ document.body.classList.add('dark'); document.getElementById('themeToggle').innerText = '☀ Light'; }
-  // logo
-  LOGO = localStorage.getItem('DASH_LOGO') || LOGO;
-  renderLogoPreview();
-  // session
-  if(localStorage.getItem('srcLogged') === 'yes'){ showFullUI(); } else { showOnlyLoginUI(); }
-  // set stored login time if exists
-  const lt = localStorage.getItem('SRC_LOGIN_TIME'); if(lt) document.getElementById('loginTime').innerText = 'Login Time: ' + lt;
-  renderAll();
-});
-
-/* login action */
-btnLogin.addEventListener('click', ()=>{
-  const user = document.getElementById('loginUser').value.trim();
-  const pass = document.getElementById('loginPass').value.trim();
-  if(user === 'TEAM SRC' && pass === 'SRC@26'){
-    localStorage.setItem('srcLogged', 'yes');
-    setLoginTime();
-    showFullUI();
-    persistAll();
-  } else {
-    alert('Invalid credentials. Use TEAM SRC / SRC@26');
-  }
-});
-
-/* logout */
-btnLogout.addEventListener('click', ()=> {
-  if(confirm('Logout?')){ localStorage.removeItem('srcLogged'); showOnlyLoginUI(); }
-});
-
-/* profile popup */
-document.getElementById('profileIcon').addEventListener('click', ()=> document.getElementById('profilePopup').classList.toggle('show'));
-document.getElementById('closeProfile').addEventListener('click', ()=> document.getElementById('profilePopup').classList.remove('show'));
-
-/* theme toggle */
-const themeBtn = document.getElementById('themeToggle');
-themeBtn.addEventListener('click', ()=>{
-  document.body.classList.toggle('dark');
-  const mode = document.body.classList.contains('dark') ? 'dark' : 'light';
-  localStorage.setItem('theme', mode);
-  themeBtn.innerText = mode==='dark' ? '☀ Light' : '🌙 Dark';
-});
-
-/* logo upload */
-const logoFile = document.getElementById('logoFile');
-const btnChooseLogo = document.getElementById('btnChooseLogo');
-const btnRemoveLogo = document.getElementById('btnRemoveLogo');
-const logoBox = document.getElementById('logoBox');
-btnChooseLogo.addEventListener('click', ()=> logoFile.click());
-logoFile.addEventListener('change', e=>{
-  const f = e.target.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = ev=>{ LOGO = ev.target.result; localStorage.setItem('DASH_LOGO', LOGO); renderLogoPreview(); };
-  r.readAsDataURL(f);
-});
-btnRemoveLogo.addEventListener('click', ()=> { LOGO = null; localStorage.removeItem('DASH_LOGO'); renderLogoPreview(); });
-function renderLogoPreview(){ if(LOGO) logoBox.innerHTML = `<img src="${LOGO}" style="max-width:100%;max-height:100%;object-fit:contain">`; else logoBox.innerHTML = '+'; }
-
-/* modal utilities */
-const modalWrap = document.getElementById('modalWrap');
-function openModal(title, bodyHtml, actions){
-  document.getElementById('modalTitle').innerText = title;
-  document.getElementById('modalBody').innerHTML = bodyHtml;
-  const actionsEl = document.getElementById('modalActions'); actionsEl.innerHTML='';
-  actions.forEach(a=>{ const btn = document.createElement('button'); btn.innerText = a.text; btn.className = a.class || 'btn'; btn.addEventListener('click', ()=> a.onClick()); actionsEl.appendChild(btn); });
-  modalWrap.style.display = 'flex';
-}
-function closeModal(){ modalWrap.style.display = 'none'; }
-
-/* ========== Render & CRUD ========== */
-function renderAll(){ renderTasksGrid(); renderSchedulesView(); renderPostingView(); renderBirthdays(); renderStats(); renderLogoPreview(); }
-
-/* TASKS */
-function renderTasksGrid(){
-  const container = document.getElementById('tasksGrid'); container.innerHTML='';
-  if(TASKS.length===0){ container.innerHTML = `<div class="card"><div class="muted">No tasks. Click Add Task to create.</div></div>`; return; }
-  TASKS.forEach((t,i)=>{ const div = document.createElement('div'); div.className='card'; div.innerHTML = `<div class="head"><div style="font-weight:800">${escapeHtml(t.id)}</div><div class="badge">${escapeHtml(t.type)}</div></div><div style="margin-top:8px"><button class="btn" data-act="editTask" data-i="${i}">Edit</button><button class="btn danger" data-act="delTask" data-i="${i}" style="margin-left:8px">Delete</button></div>`; container.appendChild(div); });
-  container.querySelectorAll('[data-act]').forEach(b=> b.addEventListener('click', ()=> { const idx = +b.dataset.i; if(b.dataset.act==='editTask') openEditTask(idx); else if(b.dataset.act==='delTask'){ if(confirm('Delete task?')){ const removedId = TASKS[idx].id; TASKS.splice(idx,1); SCHEDULES = SCHEDULES.filter(s=>s.taskId!==removedId); POSTINGS = POSTINGS.filter(p=> SCHEDULES.findIndex(s=>s.uid===p.scheduleUid)!==-1 ); persistAll(); } } }));
-}
-
-/* SCHEDULES */
-function renderSchedulesView(){
-  const container = document.getElementById('schedulesContainer'); container.innerHTML='';
-  if(SCHEDULES.length===0){ container.innerHTML = `<div class="muted">No schedules. Add schedule entries here.</div>`; return; }
-  const grouped = {}; SCHEDULES.forEach(s=> (grouped[s.date]=grouped[s.date]||[]).push(s) );
-  const dates = Object.keys(grouped).sort((a,b)=> new Date(a)-new Date(b));
-  dates.forEach(d=>{ const section = document.createElement('div'); section.style.marginBottom='12px'; section.innerHTML = `<div style="font-weight:900;color:var(--royal);margin-bottom:8px">${d}</div>`; grouped[d].forEach(s=>{ const card=document.createElement('div'); card.className='card'; card.style.display='flex'; card.style.justifyContent='space-between'; card.style.alignItems='center'; card.style.marginBottom='8px'; card.innerHTML=`<div><div style="font-weight:800">${escapeHtml(s.taskId)} (${escapeHtml(s.type)}) — ${escapeHtml(s.time)}</div><div class="muted" style="margin-top:6px">Artist: ${escapeHtml(s.artist)} | Platform: ${escapeHtml(s.platform)}</div></div><div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;gap:8px"><button class="btn" data-act="editSchedule" data-uid="${s.uid}">Edit</button><button class="btn danger" data-act="delSchedule" data-uid="${s.uid}">Delete</button></div></div>`; section.appendChild(card); }); container.appendChild(section); });
-  container.querySelectorAll('[data-act]').forEach(b=> b.addEventListener('click', ()=> { const act=b.dataset.act, uidv=b.dataset.uid; if(act==='editSchedule') openEditSchedule(uidv); if(act==='delSchedule'){ if(confirm('Delete schedule?')){ SCHEDULES = SCHEDULES.filter(x=>x.uid!==uidv); POSTINGS = POSTINGS.filter(p=>p.scheduleUid!==uidv); persistAll(); } } }));
-}
-
-/* POSTING */
-function renderPostingView() {
-  const list = document.getElementById('postingList');
-  list.innerHTML = '';
-
-  // Read current filter
-  let chosen = document.getElementById('postingDateFilter').value;
-
-  // If empty (first load), set to today's date
-  if (!chosen) {
-    chosen = new Date().toISOString().slice(0, 10);
-    document.getElementById('postingDateFilter').value = chosen;
+  function showToast(title, message, iconClass = "bi-info-circle") {
+    const wrap = $("cp-toast");
+    $("cp-toast-title").innerText = title;
+    $("cp-toast-message").innerText = message;
+    $("cp-toast-icon").innerHTML = `<i class="bi ${iconClass} text-primary"></i>`;
+    wrap.style.display = "block";
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => (wrap.style.display = "none"), 2800);
   }
 
-  const entries = SCHEDULES.filter(s => s.date === chosen);
-  if(entries.length===0){ list.innerHTML = `<div class="muted">No schedules for ${chosen}</div>`; return; }
-  entries.forEach(s=>{ let post = POSTINGS.find(p=>p.scheduleUid===s.uid && p.date===chosen); if(!post){ post = {scheduleUid:s.uid, date:chosen, ig:false, fb:false}; POSTINGS.push(post); localStorage.setItem('POSTINGS', JSON.stringify(POSTINGS)); }
-    const card=document.createElement('div'); card.className='card'; card.style.display='flex'; card.style.justifyContent='space-between'; card.style.alignItems='center'; card.style.marginBottom='8px'; card.innerHTML=`<div><div style="font-weight:800">${escapeHtml(s.taskId)} (${escapeHtml(s.type)}) — ${escapeHtml(s.time)}</div><div class="muted" style="margin-top:6px">Artist: ${escapeHtml(s.artist)} | Platform: ${escapeHtml(s.platform)}</div></div><div style="display:flex;gap:8px;align-items:center"><label style="display:flex;flex-direction:column;align-items:center;font-weight:700">IG<br><input type="checkbox" ${post.ig?'checked':''} data-post="${s.uid}" data-which="ig"></label><label style="display:flex;flex-direction:column;align-items:center;font-weight:700">FB<br><input type="checkbox" ${post.fb?'checked':''} data-post="${s.uid}" data-which="fb"></label><button class="btn secondary" data-act="exportSinglePosting" data-uid="${s.uid}">Export Row JPG</button></div>`; list.appendChild(card); });
-  list.querySelectorAll('input[type=checkbox]').forEach(cb=> cb.addEventListener('change', ()=>{ const schedUid=cb.dataset.post; const which=cb.dataset.which; const chosenDate=document.getElementById('postingDateFilter').value; let post=POSTINGS.find(p=>p.scheduleUid===schedUid && p.date===chosenDate); if(!post){ post={scheduleUid:schedUid, date:chosenDate, ig:false, fb:false}; POSTINGS.push(post); } post[which]=cb.checked; localStorage.setItem('POSTINGS', JSON.stringify(POSTINGS)); renderStats(); }));
-  list.querySelectorAll('[data-act="exportSinglePosting"]').forEach(b=> b.addEventListener('click', ()=>{ const schedUid=b.dataset.uid; const chosenDate=document.getElementById('postingDateFilter').value; const rec=SCHEDULES.find(s=>s.uid===schedUid); const post=POSTINGS.find(p=>p.scheduleUid===schedUid && p.date===chosenDate) || {ig:false,fb:false}; exportPostingSinglePortrait(rec, post); }));
-}
-
-/* BIRTHDAYS */
-function renderBirthdays(){
-  const container = document.getElementById('birthdaysList'); container.innerHTML='';
-  if(BIRTHDAYS.length===0){ container.innerHTML = `<div class="card"><div class="muted">No birthdays added</div></div>`; return; }
-  BIRTHDAYS.forEach((b,i)=>{ const c=document.createElement('div'); c.className='card'; c.innerHTML=`<div style="font-weight:900">${escapeHtml(b.name)}</div><div class="muted">${escapeHtml(b.department)} · ${escapeHtml(b.date)}</div><div style="margin-top:10px"><button class="btn" data-act="editB" data-uid="${b.uid}">Edit</button><button class="btn danger" data-act="delB" data-uid="${b.uid}" style="margin-left:8px">Delete</button><button class="btn secondary" data-act="expB" data-uid="${b.uid}" style="margin-left:8px">Export Person JPG</button></div>`; container.appendChild(c); });
-  container.querySelectorAll('[data-act]').forEach(b=> b.addEventListener('click', ()=>{ const act=b.dataset.act, id=b.dataset.uid; if(act==='editB') openEditBirthday(id); if(act==='delB'){ if(confirm('Delete birthday?')){ BIRTHDAYS = BIRTHDAYS.filter(x=>x.uid!==id); persistAll(); } } if(act==='expB'){ const rec=BIRTHDAYS.find(x=>x.uid===id); openBirthdayExportChoice(rec); } }));
-}
-
-/* STATS */
-function renderStats(){
-  document.getElementById('statTasks').innerText = TASKS.length;
-  document.getElementById('statSchedules').innerText = SCHEDULES.length;
-  document.getElementById('statBirthdays').innerText = BIRTHDAYS.length;
-  document.getElementById('taskListSmall').innerHTML = TASKS.slice(0,10).map(t=>`<div>${escapeHtml(t.id)} — ${escapeHtml(t.type)}</div>`).join('');
-  document.getElementById('scheduleListSmall').innerHTML = SCHEDULES.slice(0,10).map(s=>`<div>${escapeHtml(s.date)} · ${escapeHtml(s.taskId)} (${escapeHtml(s.time)})</div>`).join('');
-  document.getElementById('birthdayListSmall').innerHTML = BIRTHDAYS.slice(0,10).map(b=>`<div>${escapeHtml(b.name)} · ${escapeHtml(b.date)}</div>`).join('');
-}
-
-/* ========== CRUD Modals ========== */
-/* Add Task */
-document.getElementById('addTaskBtn').addEventListener('click', ()=>{ openModal('Add Task', `<div class="form-row"><label>Task ID</label><input id="f_taskId" class="input full" placeholder="TASK-001"></div><div class="form-row"><label>Task Type</label><input id="f_taskType" class="input full" placeholder="e.g. Promo"></div>`, [{text:'Cancel',class:'btn secondary',onClick:closeModal},{text:'Add',class:'btn',onClick:()=>{ const id=document.getElementById('f_taskId').value.trim(); const type=document.getElementById('f_taskType').value.trim(); if(!id||!type){ alert('Fill both'); return; } TASKS.push({id,type}); persistAll(); closeModal(); }}] ); });
-
-/* Edit Task */
-function openEditTask(index){ const rec=TASKS[index]; openModal('Edit Task', `<div class="form-row"><label>Task ID</label><input id="f_taskId" class="input full" value="${escapeHtml(rec.id)}"></div><div class="form-row"><label>Task Type</label><input id="f_taskType" class="input full" value="${escapeHtml(rec.type)}"></div>`, [{text:'Cancel',class:'btn secondary',onClick:closeModal},{text:'Update',class:'btn',onClick:()=>{ const id=document.getElementById('f_taskId').value.trim(); const type=document.getElementById('f_taskType').value.trim(); if(!id||!type){ alert('Fill both'); return; } const oldId=rec.id; TASKS[index]={id,type}; SCHEDULES = SCHEDULES.map(s=> s.taskId===oldId ? {...s, taskId:id, type} : s); persistAll(); closeModal(); }}] ); }
-
-/* Add Schedule */
-document.getElementById('addScheduleBtn').addEventListener('click', ()=>{ if(TASKS.length===0){ alert('Add tasks first'); return; } const options = TASKS.map(t=>`<option value="${escapeHtml(t.id)}">${escapeHtml(t.id)} — ${escapeHtml(t.type)}</option>`).join(''); openModal('Add Schedule', `<div class="form-row"><label>Task</label><select id="f_s_task" class="input full">${options}</select></div><div class="form-row"><label>Date</label><input id="f_s_date" type="date" class="input full"></div><div class="form-row"><label>Time</label><input id="f_s_time" type="time" class="input full"></div><div class="form-row"><label>Artist</label><input id="f_s_artist" class="input full" placeholder="Artist name"></div><div class="form-row"><label>Platform</label><select id="f_s_platform" class="input full"><option>IG</option><option>FB</option><option>Both</option></select></div>`, [{text:'Cancel',class:'btn secondary',onClick:closeModal},{text:'Add',class:'btn',onClick:()=>{ const taskId=document.getElementById('f_s_task').value; const date=document.getElementById('f_s_date').value; const time=document.getElementById('f_s_time').value; const artist=document.getElementById('f_s_artist').value.trim(); const platform=document.getElementById('f_s_platform').value; if(!taskId||!date||!time||!artist){ alert('Fill required'); return; } const type=(TASKS.find(t=>t.id===taskId)||{}).type||''; SCHEDULES.push({taskId,type,date,time,artist,platform,uid:uid()}); persistAll(); closeModal(); }}] ); });
-
-/* Edit Schedule */
-function openEditSchedule(schedUid){ const rec=SCHEDULES.find(s=>s.uid===schedUid); if(!rec) return alert('Not found'); const options = TASKS.map(t=>`<option value="${escapeHtml(t.id)}" ${t.id===rec.taskId?'selected':''}>${escapeHtml(t.id)} — ${escapeHtml(t.type)}</option>`).join(''); openModal('Edit Schedule', `<div class="form-row"><label>Task</label><select id="f_s_task" class="input full">${options}</select></div><div class="form-row"><label>Date</label><input id="f_s_date" type="date" class="input full" value="${escapeHtml(rec.date)}"></div><div class="form-row"><label>Time</label><input id="f_s_time" type="time" class="input full" value="${escapeHtml(rec.time)}"></div><div class="form-row"><label>Artist</label><input id="f_s_artist" class="input full" value="${escapeHtml(rec.artist)}"></div><div class="form-row"><label>Platform</label><select id="f_s_platform" class="input full"><option ${rec.platform==='IG'?'selected':''}>IG</option><option ${rec.platform==='FB'?'selected':''}>FB</option><option ${rec.platform==='Both'?'selected':''}>Both</option></select></div>`, [{text:'Cancel',class:'btn secondary',onClick:closeModal},{text:'Update',class:'btn',onClick:()=>{ const taskId=document.getElementById('f_s_task').value; const date=document.getElementById('f_s_date').value; const time=document.getElementById('f_s_time').value; const artist=document.getElementById('f_s_artist').value.trim(); const platform=document.getElementById('f_s_platform').value; if(!taskId||!date||!time||!artist){ alert('Fill required'); return; } const type=(TASKS.find(t=>t.id===taskId)||{}).type||''; SCHEDULES = SCHEDULES.map(s=> s.uid===schedUid ? {...s, taskId, type, date, time, artist, platform} : s); persistAll(); closeModal(); }}] ); }
-
-/* Add Birthday */
-document.getElementById('addBirthdayBtn').addEventListener('click', ()=>{ openModal('Add Birthday', `<div class="form-row"><label>Name</label><input id="f_b_name" class="input full"></div><div class="form-row"><label>Department/Type</label><input id="f_b_dept" class="input full"></div><div class="form-row"><label>Date</label><input id="f_b_date" type="date" class="input full"></div>`, [{text:'Cancel',class:'btn secondary',onClick:closeModal},{text:'Add',class:'btn',onClick:()=>{ const name=document.getElementById('f_b_name').value.trim(); const dept=document.getElementById('f_b_dept').value.trim(); const date=document.getElementById('f_b_date').value; if(!name||!dept||!date){ alert('Fill required'); return; } BIRTHDAYS.push({name,department:dept,date,uid:uid()}); persistAll(); closeModal(); }}] ); });
-
-/* Edit Birthday */
-function openEditBirthday(uidv){ const rec=BIRTHDAYS.find(b=>b.uid===uidv); if(!rec) return; openModal('Edit Birthday', `<div class="form-row"><label>Name</label><input id="f_b_name" class="input full" value="${escapeHtml(rec.name)}"></div><div class="form-row"><label>Department/Type</label><input id="f_b_dept" class="input full" value="${escapeHtml(rec.department)}"></div><div class="form-row"><label>Date</label><input id="f_b_date" type="date" class="input full" value="${escapeHtml(rec.date)}"></div>`, [{text:'Cancel',class:'btn secondary',onClick:closeModal},{text:'Update',class:'btn',onClick:()=>{ const name=document.getElementById('f_b_name').value.trim(); const dept=document.getElementById('f_b_dept').value.trim(); const date=document.getElementById('f_b_date').value; if(!name||!dept||!date){ alert('Fill required'); return; } BIRTHDAYS = BIRTHDAYS.map(b=> b.uid===uidv ? {name,department:dept,date,uid:uidv} : b); persistAll(); closeModal(); }}] ); }
-
-/* ========== Export Builders & Birthday Theme Logic ========== */
-
-/* build export sheet DOM with watermark opacity 35% (CSS variable used) */
-function buildExportSheet(title, subtitle, rowsHtml){
-  const wrapper = document.createElement('div'); 
-  wrapper.className = 'export-sheet';
-
-  const rowText = "CHINNAPATRA OFFICIAL ".repeat(12);
-
-  // build 8 horizontal rows
-  let waterRows = "";
-  for (let i = 0; i < 8; i++) {
-    waterRows += `<div class="wm-row">${rowText}</div>`;
+  function setRoleBadge(role) {
+    const el = $("userRoleBadge");
+    el.textContent = role?.toUpperCase() || "—";
+    el.className = "cp-badge-role";
+    if (!role) return;
+    if (role === "SuperAdmin") el.classList.add("cp-role-superadmin");
+    else if (role === "Assigner") el.classList.add("cp-role-assigner");
+    else if (role === "Scheduler") el.classList.add("cp-role-scheduler");
+    else if (role === "Poster") el.classList.add("cp-role-poster");
+    else el.classList.add("cp-role-viewer");
   }
 
-  wrapper.innerHTML = `
-  <div class="export-frame">
-    <div class="export-outer">
-      <div class="export-inner">
-        <div class="exp-header">
-          <div>
-            <div class="exp-title">${escapeHtml(title)}</div>
-            <div class="exp-meta">${escapeHtml(subtitle)}</div>
+  function showSection(sec) {
+    const sections = ["dashboard", "assigner", "scheduler", "poster", "viewer", "admin", "artist-panel"];
+    sections.forEach((s) => {
+      const el = document.getElementById("section-" + s);
+      if (!el) return;
+      el.classList.toggle("d-none", s !== sec);
+    });
+    document.querySelectorAll(".cp-nav-pill").forEach((p) => {
+      p.classList.toggle("active", p.dataset.section === sec);
+    });
+    const labelMap = {
+      dashboard: "Dashboard",
+      assigner: "Assign & Approve",
+      scheduler: "Schedule",
+      poster: "Posting",
+      viewer: "Analytics",
+      admin: "SuperAdmin",
+      "artist-panel": "Artist Panel",
+    };
+    $("pageTitle").innerText = labelMap[sec] || "Dashboard";
+  }
+
+  function applyRoleVisibility(role) {
+    const isSuper = role === "SuperAdmin";
+    const canAssigner  = isSuper || role === "Assigner";
+    const canScheduler = isSuper || role === "Scheduler";
+    const canPoster    = isSuper || role === "Poster";
+    const canViewer    = isSuper || role === "Viewer";
+
+    const navMap = {
+      assigner: canAssigner,
+      scheduler: canScheduler,
+      poster: canPoster,
+      viewer: canViewer,
+      admin: isSuper,
+      "artist-panel": false,
+    };
+    Object.entries(navMap).forEach(([sec, can]) => {
+      const pill = document.querySelector(`.cp-nav-pill[data-section="${sec}"]`);
+      if (pill) pill.style.display = can ? "" : "none";
+    });
+
+    if (isSuper) showSection("dashboard");
+    else if (role === "Assigner") showSection("assigner");
+    else if (role === "Scheduler") showSection("scheduler");
+    else if (role === "Poster") showSection("poster");
+    else showSection("viewer");
+  }
+
+  async function login(username, password) {
+    const { data, error } = await db
+      .from("users")
+      .select("*")
+      .eq("username", username)
+      .eq("password", password)
+      .eq("active", true)
+      .single();
+    if (error || !data) throw new Error("Invalid credentials");
+    return data;
+  }
+
+  async function loadDashboard() {
+    const [{ data: t }, { data: sp }] = await Promise.all([
+      db.from("tasks").select("id,status,urgency,task_code,task_types(name)").order("created_at", { ascending: false }).limit(50),
+      db.from("scheduled_posts").select("*").order("scheduled_date", { ascending: true }).limit(50),
+    ]);
+
+    const tasks = t || [];
+    const posts = sp || [];
+
+    $("kpiTotalTasks").innerText = tasks.length;
+    const completed = tasks.filter((x) => x.status === "completed").length;
+    $("kpiCompleted").innerText = completed;
+
+    const facebookPending = posts.filter((p) =>
+      p.status === "facebook" || p.status === "both"
+    ).length;
+    $("kpiFacebookPending").innerText = facebookPending;
+    $("kpiScheduledPosts").innerText = posts.length;
+
+    const urgentTasks = tasks.filter((x) => x.urgency === "urgent");
+    $("tagUrgent").classList.toggle("d-none", urgentTasks.length === 0);
+    $("tagOk").classList.toggle("d-none", urgentTasks.length !== 0);
+
+    const urgentBody = $("tblUrgentTasks");
+    urgentBody.innerHTML = "";
+    urgentTasks.forEach((task) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${task.task_code || "—"}</td>
+        <td>${task.task_types?.name || ""}</td>
+        <td>-</td>
+        <td><span class="cp-badge-status cp-st-${task.status}">${task.status}</span></td>
+      `;
+      urgentBody.appendChild(tr);
+    });
+
+    const upBody = $("tblUpcomingPosts");
+    upBody.innerHTML = "";
+    posts.forEach((p) => {
+      const times = p.time_slots || [];
+      const first = times[0] || "";
+      const platform = p.status;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${p.scheduled_date}</td>
+        <td>${first}</td>
+        <td>${p.task_code}</td>
+        <td>${platform}</td>
+      `;
+      upBody.appendChild(tr);
+    });
+  }
+
+  async function loadLookups() {
+    const [{ data: artists }, { data: taskTypes }, { data: users }] =
+      await Promise.all([
+        db.from("artists").select("*").order("name"),
+        db.from("task_types").select("*").order("name"),
+        db.from("users").select("*").order("username"),
+      ]);
+
+    const artistSelect = $("taskArtistSelect");
+    const schedArtistSelect = $("scheduleFacebookArtist");
+    artistSelect.innerHTML = '<option value="">Artist</option>';
+    schedArtistSelect.innerHTML = '<option value="">Optional</option>';
+    (artists || []).forEach((a) => {
+      const opt = document.createElement("option");
+      opt.value = a.id;
+      opt.textContent = a.name;
+      artistSelect.appendChild(opt);
+
+      const opt2 = document.createElement("option");
+      opt2.value = a.id;
+      opt2.textContent = a.name;
+      schedArtistSelect.appendChild(opt2);
+    });
+
+    const typeSelect = $("taskTypeSelect");
+    typeSelect.innerHTML = '<option value="">Select type</option>';
+    (taskTypes || []).forEach((t) => {
+      const opt = document.createElement("option");
+      opt.value = t.id;
+      opt.textContent = t.name;
+      typeSelect.appendChild(opt);
+    });
+
+    const userBody = $("tblUsers");
+    userBody.innerHTML = "";
+    (users || []).forEach((u) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${u.username}</td>
+        <td><span class="badge bg-secondary">${u.role}</span></td>
+        <td>
+          <button class="cp-pill-btn cp-pill-danger btn-sm" data-user-id="${u.id}">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      `;
+      userBody.appendChild(tr);
+    });
+
+    const artistBody = $("tblArtists");
+    artistBody.innerHTML = "";
+    (artists || []).forEach((a) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${a.name}</td>
+        <td>${a.category || ""}</td>
+        <td>${a.phone || ""}</td>
+      `;
+      artistBody.appendChild(tr);
+    });
+  }
+
+  function renderSelectedArtistsForTask() {
+    const container = $("selectedArtistsForTask");
+    if (state.selectedTaskArtists.length === 0) {
+      container.textContent = "No artist added.";
+      return;
+    }
+    container.innerHTML = state.selectedTaskArtists
+      .map((a) => `<span class="badge rounded-pill text-bg-light me-1">${a.name} / ${a.role}</span>`)
+      .join("");
+  }
+
+  async function loadAssignerTables() {
+    const { data: tasks } = await db
+      .from("tasks")
+      .select("*, task_types(name)")
+      .in("status", ["assigned", "submitted"])
+      .order("created_at", { ascending: false });
+
+    const body = $("tblPendingApproval");
+    body.innerHTML = "";
+    (tasks || []).forEach((t) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${t.task_types?.name || ""}</td>
+        <td>${t.urgency}</td>
+        <td>-</td>
+        <td>${t.submission_source || ""}</td>
+        <td>
+          <button class="cp-pill-btn cp-pill-success me-1" data-approve-id="${t.id}">
+            <i class="bi bi-check2"></i>
+          </button>
+          <button class="cp-pill-btn cp-pill-warning" data-reject-id="${t.id}">
+            <i class="bi bi-arrow-counterclockwise"></i>
+          </button>
+        </td>
+      `;
+      body.appendChild(tr);
+    });
+  }
+
+  async function loadSchedulesForSchedulerAndPoster() {
+    const { data: posts } = await db
+      .from("scheduled_posts")
+      .select("*")
+      .order("scheduled_date", { ascending: true });
+
+    const schedBody = $("tblSchedules");
+    const posterBody = $("tblPostingQueue");
+    schedBody.innerHTML = "";
+    posterBody.innerHTML = "";
+
+    (posts || []).forEach((p) => {
+      const times = p.time_slots || [];
+      const first = times[0] || "";
+      const waMsg = encodeURIComponent(
+        `Reminder: Task ${p.task_code} at ${first} (${p.status.toUpperCase()})`
+      );
+      const schedTr = document.createElement("tr");
+      schedTr.innerHTML = `
+        <td>${p.scheduled_date}</td>
+        <td>${first}</td>
+        <td>${p.task_code}</td>
+        <td>${p.status}</td>
+        <td>
+          <a href="https://wa.me/?text=${waMsg}" target="_blank" class="cp-pill-btn cp-pill-success">
+            <i class="bi bi-whatsapp"></i>
+          </a>
+        </td>
+        <td>
+          <button class="cp-pill-btn cp-pill-danger" data-del-schedule="${p.id}">
+            <i class="bi bi-trash3"></i>
+          </button>
+        </td>
+      `;
+      schedBody.appendChild(schedTr);
+
+      const posterTr = document.createElement("tr");
+      posterTr.innerHTML = `
+        <td>${first}</td>
+        <td>${p.task_code}</td>
+        <td>${p.post_title || ""}</td>
+        <td>${p.status}</td>
+        <td>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-primary" data-post-fb="${p.id}">
+              <i class="bi bi-facebook"></i>
+            </button>
+            <button class="btn btn-outline-danger" data-post-ig="${p.id}">
+              <i class="bi bi-instagram"></i>
+            </button>
+            <button class="btn btn-outline-success" data-post-both="${p.id}">
+              <i class="bi bi-check2-circle"></i>
+            </button>
           </div>
-          <div class="exp-logo">
-            ${ LOGO ? `<img src="${LOGO}" style="max-width:100%;max-height:100%;object-fit:contain">` : '' }
-          </div>
-        </div>
-
-        <div style="padding-top:12px">${rowsHtml}</div>
-
-        <div class="exp-footer">CHINNAPATRA OFFICIAL</div>
-      </div>
-
-      <!-- MULTI ROW WATERMARK -->
-      <div class="export-watermark">${waterRows}</div>
-    </div>
-  </div>
-  `;
-  return wrapper;
-}
-
-
-/* common capture */
-async function captureAndDownload(sheetNode, filename){
-  const exportHidden = document.getElementById('exportHidden'); exportHidden.innerHTML=''; exportHidden.appendChild(sheetNode);
-  await new Promise(r=>setTimeout(r,220));
-  const sheet = exportHidden.querySelector('.export-sheet');
-  const canvas = await html2canvas(sheet, { scale:2, useCORS:true, allowTaint:true, logging:false });
-  const data = canvas.toDataURL('image/jpeg', 0.95);
-  const a = document.createElement('a'); a.href = data; a.download = filename; a.click();
-  exportHidden.innerHTML='';
-}
-
-/* All Schedules export */
-document.getElementById('exportSchedulesAll').addEventListener('click', async ()=>{
-  if(SCHEDULES.length===0){ alert('No schedules to export'); return; }
-  const grouped={}; SCHEDULES.forEach(s=> (grouped[s.date]=grouped[s.date]||[]).push(s));
-  const dates = Object.keys(grouped).sort((a,b)=> new Date(a)-new Date(b));
-  let rowsHtml=''; dates.forEach(d=>{ rowsHtml += `<div style="font-weight:900;color:var(--royal);margin-bottom:8px">${d}</div>`; grouped[d].forEach(s=> rowsHtml += `<div class="exp-row"><div class="exp-left">${escapeHtml(s.taskId)} (${escapeHtml(s.type)})<div style="font-weight:600;color:#64748b;font-size:13px">${escapeHtml(s.time)} · ${escapeHtml(s.artist)}</div></div><div class="exp-right">${escapeHtml(s.platform)}</div></div>`); });
-  const sheet = buildExportSheet('Schedules', `Generated: ${new Date().toLocaleString()}`, rowsHtml);
-  await captureAndDownload(sheet, `Schedules_${Date.now()}.jpg`);
-});
-
-/* All Posting export */
-document.getElementById('exportPostingAll').addEventListener('click', async ()=>{
-  if(SCHEDULES.length===0){ alert('No schedules/postings to export'); return; }
-  const grouped={}; SCHEDULES.forEach(s=> (grouped[s.date]=grouped[s.date]||[]).push(s));
-  const dates = Object.keys(grouped).sort((a,b)=> new Date(a)-new Date(b));
-  let rowsHtml=''; dates.forEach(d=>{ rowsHtml += `<div style="font-weight:900;color:var(--royal);margin-bottom:8px">${d}</div>`; grouped[d].forEach(s=>{ const post = POSTINGS.find(p=>p.scheduleUid===s.uid && p.date===d) || {ig:false,fb:false}; const ig = post.ig ? 'Posted (IG)' : 'Not Posted (IG)'; const fb = post.fb ? 'Posted (FB)' : 'Not Posted (FB)'; rowsHtml += `<div class="exp-row"><div class="exp-left">${escapeHtml(s.taskId)} (${escapeHtml(s.type)})<div style="font-weight:600;color:#64748b;font-size:13px">${escapeHtml(s.time)} · ${escapeHtml(s.artist)}</div></div><div class="exp-right">${ig}<br>${fb}</div></div>`; }); });
-  const sheet = buildExportSheet('Posting Report', `Generated: ${new Date().toLocaleString()}`, rowsHtml);
-  await captureAndDownload(sheet, `Posting_${Date.now()}.jpg`);
-});
-
-/* All Birthdays export */
-document.getElementById('exportBirthdaysAll').addEventListener('click', async ()=>{
-  if(BIRTHDAYS.length===0){ alert('No birthdays to export'); return; }
-  let rowsHtml=''; BIRTHDAYS.forEach((b,idx)=> rowsHtml += `<div class="exp-row"><div class="exp-left">${escapeHtml(b.name)}<div style="font-weight:600;color:#64748b;font-size:13px">${escapeHtml(b.department)}</div></div><div class="exp-right">${escapeHtml(b.date)}</div></div>`);
-  const sheet = buildExportSheet('Birthdays', `Total: ${BIRTHDAYS.length} · Generated: ${new Date().toLocaleString()}`, rowsHtml);
-  await captureAndDownload(sheet, `Birthdays_${Date.now()}.jpg`);
-});
-
-/* Posting Day export */
-document.getElementById('exportPostingDayBtn').addEventListener('click', async ()=>{
-  const chosen = document.getElementById('postingDateFilter').value || new Date().toISOString().slice(0,10);
-  const entries = SCHEDULES.filter(s=>s.date===chosen); if(entries.length===0){ alert('No schedules on '+chosen); return; }
-  let rowsHtml=''; entries.forEach(s=>{ const post = POSTINGS.find(p=>p.scheduleUid===s.uid && p.date===chosen) || {ig:false,fb:false}; rowsHtml += `<div class="exp-row"><div class="exp-left">${escapeHtml(s.taskId)} (${escapeHtml(s.type)})<div style="font-weight:600;color:#64748b;font-size:13px">${escapeHtml(s.time)} · ${escapeHtml(s.artist)}</div></div><div class="exp-right">${post.ig?'Posted (IG)':'Not (IG)'}<br>${post.fb?'Posted (FB)':'Not (FB)'}</div></div>`; });
-  const sheet = buildExportSheet(`Posting — ${chosen}`, `Generated: ${new Date().toLocaleString()}`, rowsHtml);
-  await captureAndDownload(sheet, `Posting_${chosen}.jpg`);
-});
-
-/* single posting row export */
-function exportPostingSinglePortrait(scheduleRec, postRec){
-  if(!scheduleRec) return alert('Schedule not found');
-  const rowsHtml = `<div class="exp-row"><div class="exp-left">${escapeHtml(scheduleRec.taskId)} (${escapeHtml(scheduleRec.type)})<div style="font-weight:600;color:#64748b;font-size:13px">${escapeHtml(scheduleRec.date)} · ${escapeHtml(scheduleRec.time)} · ${escapeHtml(scheduleRec.artist)}</div></div><div class="exp-right">${postRec.ig?'Posted (IG)':'Not (IG)'}<br>${postRec.fb?'Posted (FB)':'Not (FB)'}</div></div>`;
-  const sheet = buildExportSheet(`Posting Row`, `Schedule: ${scheduleRec.date}`, rowsHtml); captureAndDownload(sheet, `Posting_row_${scheduleRec.uid}.jpg`);
-}
-
-/* Stats exports */
-document.getElementById('exportTaskStats').addEventListener('click', async ()=>{ let rowsHtml = TASKS.map((t,i)=> `<div class="exp-row"><div class="exp-left">#${i+1} ${escapeHtml(t.id)}</div><div class="exp-right">${escapeHtml(t.type)}</div></div>`).join(''); const sheet = buildExportSheet('Task Statistics', `Total Tasks: ${TASKS.length}`, rowsHtml); await captureAndDownload(sheet, `TaskStats_${Date.now()}.jpg`); });
-document.getElementById('exportScheduleStats').addEventListener('click', async ()=>{ const byDate={}; SCHEDULES.forEach(s=> byDate[s.date] = (byDate[s.date]||0)+1); let rowsHtml = Object.keys(byDate).sort().map(d=> `<div class="exp-row"><div class="exp-left">${escapeHtml(d)}</div><div class="exp-right">${byDate[d]} schedules</div></div>`).join(''); const sheet = buildExportSheet('Schedule Statistics', `Total Schedules: ${SCHEDULES.length}`, rowsHtml); await captureAndDownload(sheet, `ScheduleStats_${Date.now()}.jpg`); });
-document.getElementById('exportPostingStats').addEventListener('click', async ()=>{ let igCount=0, fbCount=0, total=0; POSTINGS.forEach(p=>{ if(p.ig) igCount++; if(p.fb) fbCount++; total++; }); let rowsHtml = `<div class="exp-row"><div class="exp-left">Total posting records</div><div class="exp-right">${total}</div></div><div class="exp-row"><div class="exp-left">IG posted</div><div class="exp-right">${igCount}</div></div><div class="exp-row"><div class="exp-left">FB posted</div><div class="exp-right">${fbCount}</div></div>`; const sheet = buildExportSheet('Posting Statistics', `Records: ${total}`, rowsHtml); await captureAndDownload(sheet, `PostingStats_${Date.now()}.jpg`); });
-document.getElementById('exportBirthdayStats').addEventListener('click', async ()=>{ let rowsHtml = BIRTHDAYS.map((b,i)=> `<div class="exp-row"><div class="exp-left">#${i+1} ${escapeHtml(b.name)}</div><div class="exp-right">${escapeHtml(b.date)}</div></div>`).join(''); const sheet = buildExportSheet('Birthday Statistics', `Total Birthdays: ${BIRTHDAYS.length}`, rowsHtml); await captureAndDownload(sheet, `BirthdayStats_${Date.now()}.jpg`); });
-
-/* bind export all birthdays button */
-document.getElementById('exportAllBirthdays').addEventListener('click', ()=> document.getElementById('exportBirthdaysAll').click());
-document.getElementById('exportBirthdaysAll').addEventListener('click', async ()=> { if(BIRTHDAYS.length===0){ alert('No birthdays to export'); return; } let rowsHtml=''; BIRTHDAYS.forEach((b)=> rowsHtml += `<div class="exp-row"><div class="exp-left">${escapeHtml(b.name)}<div style="font-weight:600;color:#64748b;font-size:13px">${escapeHtml(b.department)}</div></div><div class="exp-right">${escapeHtml(b.date)}</div></div>`); const sheet = buildExportSheet('Birthdays', `Total: ${BIRTHDAYS.length} · Generated: ${new Date().toLocaleString()}`, rowsHtml); await captureAndDownload(sheet, `Birthdays_${Date.now()}.jpg`); });
-
-/* ========== Birthday Theme Export UI & Logic ========= */
-
-/* open choice modal for birthday export theme */
-function openBirthdayExportChoice(bRec){
-  if(!bRec) return;
-  const bodyHtml = `
-    <div style="margin-bottom:10px;font-weight:800">Export Birthday for: ${escapeHtml(bRec.name)}</div>
-    <div style="margin-bottom:6px">Choose theme (affects decoration):</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-      <label><input type="radio" name="btheme" value="glitter" checked> Glitter ✨</label>
-      <label><input type="radio" name="btheme" value="confetti"> Confetti 🎊</label>
-      <label><input type="radio" name="btheme" value="balloons"> Balloons 🎈</label>
-      <label><input type="radio" name="btheme" value="cake"> Cake 🎂</label>
-      <label><input type="radio" name="btheme" value="random"> Random 🎲</label>
-    </div>
-    <div style="margin-bottom:8px">Heading shown on JPG:</div>
-    <div style="font-weight:800;margin-bottom:8px">✨ Wishing You a Wonderful Birthday!</div>
-  `;
-  openModal('Birthday Export Theme', bodyHtml, [
-    { text:'Cancel', class:'btn secondary', onClick: closeModal },
-    { text:'Export JPG', class:'btn', onClick: ()=>{
-        const sel = document.querySelector('input[name="btheme"]:checked').value;
-        closeModal();
-        exportBirthdayWithTheme(bRec, sel);
-    } }
-  ]);
-}
-
-/* export birthday with chosen theme (applies decoration to export inner box) */
-async function exportBirthdayWithTheme(bRec, theme){
-  if(!bRec) return;
-  const today = new Date(); const [yy, mm, dd] = bRec.date.split('-').map(Number);
-  const isToday = (today.getDate()===dd && (today.getMonth()+1)===mm);
-
-  // build decoration HTML based on theme (static shapes suitable for JPG)
-  let decHtml = '';
-  if(theme==='random'){ const arr=['glitter','confetti','balloons','cake']; theme = arr[Math.floor(Math.random()*arr.length)]; }
-  if(theme==='glitter'){
-    decHtml = `<div class="decoration dec-glitter" style="height:140px;border-radius:12px;margin-bottom:16px"></div>`;
-  } else if(theme==='confetti'){
-    // create colored rectangles
-    let dots = '';
-    const colors = ['#ff5e7a','#ffd25e','#5ee6ff','#9d5eff','#4dffa6','#ffd2f0'];
-    for(let i=0;i<60;i++){ const c = colors[i%colors.length]; dots += `<div class="dot" style="background:${c};"></div>`; }
-    decHtml = `<div class="decoration dec-confetti" style="height:120px">${dots}</div>`;
-  } else if(theme==='balloons'){
-    // balloons as colored circles with tails
-    const balloonColors = ['#ff5e7a','#ffd25e','#5ee6ff','#9d5eff','#4dffa6'];
-    let bHtml='';
-    balloonColors.forEach((c,idx)=>{ bHtml += `<div class="balloon-wrap" style="display:flex;flex-direction:column;align-items:center"><div class="balloon" style="background:${c};width:78px;height:110px;border-radius:50% 50% 45% 45%;display:flex;align-items:center;justify-content:center;font-size:28px;color:white">${idx%2===0?'🎈':' '}</div><div style="width:2px;height:30px;background:rgba(0,0,0,0.12);margin-top:6px"></div></div>`; });
-    decHtml = `<div class="decoration dec-balloons" style="height:160px;gap:18px">${bHtml}</div>`;
-  } else if(theme==='cake'){
-    decHtml = `<div class="decoration dec-cake" style="height:200px"><div style="font-size:72px">🎂</div><div style="font-weight:800;font-size:26px">Make a Wish!</div></div>`;
-  } else {
-    decHtml = `<div class="decoration dec-glitter" style="height:140px;border-radius:12px;margin-bottom:16px"></div>`;
+        </td>
+      `;
+      posterBody.appendChild(posterTr);
+    });
   }
 
-  const heading = '✨ Wishing You a Wonderful Birthday!'; // your chosen custom heading
+  async function loadApprovedTasksForSchedule() {
+    const { data } = await db
+      .from("tasks")
+      .select("id, task_code, task_types(name)")
+      .eq("status", "approved")
+      .order("created_at", { ascending: false });
 
-  // main rowsHtml with decoration and person info
-  let rowsHtml = `<div style="text-align:center;padding:36px 0"><div style="font-weight:900;font-size:44px">${escapeHtml(heading)}</div><div style="font-size:28px;font-weight:900;margin-top:18px">${escapeHtml(bRec.name)}</div><div style="color:#475569;margin-top:8px">${escapeHtml(bRec.department)}</div><div style="color:#334155;margin-top:10px;font-weight:700">${escapeHtml(bRec.date)}</div></div>${decHtml}`;
+    const select = $("scheduleTaskSelect");
+    select.innerHTML = '<option value="">Select approved</option>';
+    (data || []).forEach((t) => {
+      const opt = document.createElement("option");
+      opt.value = t.id;
+      opt.textContent = `${t.task_code} - ${t.task_types?.name || ""}`;
+      select.appendChild(opt);
+    });
+  }
 
-  const sheet = buildExportSheet(`Birthday — ${bRec.name}`, `Generated: ${new Date().toLocaleString()}`, rowsHtml);
-  // apply special today styling if birthday today
-  if(isToday){ const inner = sheet.querySelector('.export-inner'); if(inner) inner.classList.add('birthday-today'); }
-  await captureAndDownload(sheet, `Birthday_${bRec.name.replace(/\s+/g,'_')}_${theme}.jpg`);
-}
+  async function loadArtistTasks() {
+    if (!state.artist) return;
+    const artistId = state.artist.id;
 
-/* Export birthday individual quick (not using theme chooser) */
-function exportBirthdayIndividual(bRec){
-  openBirthdayExportChoice(bRec);
-}
+    const { data, error } = await db
+      .from("task_artists")
+      .select("*, tasks(task_code,status,urgency,submission_source,task_types(name))")
+      .eq("artist_id", artistId)
+      .order("created_at", { ascending: false });
 
-/* ========== Posting / Other helpers ========== */
-/* posting view and checkboxes handled earlier in renderPostingView */ 
+    const body = $("tblArtistTasks");
+    body.innerHTML = "";
+    (data || []).forEach((row) => {
+      const t = row.tasks;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${t.task_code || "—"}</td>
+        <td>${t.task_types?.name || ""}</td>
+        <td>${row.assigned_role}</td>
+        <td>${t.urgency}</td>
+        <td>${t.submission_source || ""}</td>
+        <td>
+          <button class="cp-pill-btn cp-pill-success" data-artist-submit="${row.id}">
+            <i class="bi bi-check2-circle"></i>
+          </button>
+        </td>
+      `;
+      body.appendChild(tr);
+    });
+  }
 
-/* schedule reminder sound (simple beep) */
-let audioCtx = null;
-function playBeep(){ try{ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type='sine'; o.frequency.value=880; o.connect(g); g.connect(audioCtx.destination); g.gain.value=0.0001; o.start(); g.gain.exponentialRampToValueAtTime(0.12, audioCtx.currentTime+0.02); setTimeout(()=>{ g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.8); setTimeout(()=>o.stop(),900); }, 600); }catch(e){ console.warn('audio err',e); } }
-setInterval(()=>{
-  if(localStorage.getItem('srcLogged')!=='yes') return;
-  const now = new Date(); const cur = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  SCHEDULES.forEach(s=>{
-    const key = 'notified_'+s.uid+'_'+(s.date||'');
-    if(s.date === new Date().toISOString().slice(0,10) && s.time === cur && !sessionStorage.getItem(key)){
-      playBeep(); sessionStorage.setItem(key,'1'); showToast(`Reminder: ${s.taskId} — ${s.time}`);
+  async function fullReload() {
+    await Promise.all([
+      loadDashboard(),
+      loadLookups(),
+      loadAssignerTables(),
+      loadSchedulesForSchedulerAndPoster(),
+      loadApprovedTasksForSchedule(),
+    ]);
+  }
+
+  document.addEventListener("click", async (e) => {
+    const pill = e.target.closest(".cp-nav-pill");
+    if (pill) {
+      showSection(pill.dataset.section);
+      if (pill.dataset.section === "dashboard") loadDashboard();
+      if (pill.dataset.section === "assigner") loadAssignerTables();
+      if (pill.dataset.section === "scheduler") {
+        loadSchedulesForSchedulerAndPoster();
+        loadApprovedTasksForSchedule();
+      }
+      if (pill.dataset.section === "poster") loadSchedulesForSchedulerAndPoster();
+      if (pill.dataset.section === "artist-panel") loadArtistTasks();
+    }
+
+    if (e.target.id === "btn-toggle-sidebar") {
+      $("cp-sidebar").classList.toggle("show");
+    }
+
+    if (e.target.dataset?.userId) {
+      const id = e.target.dataset.userId;
+      await db.from("users").delete().eq("id", id);
+      showToast("User Removed", "User deleted successfully.", "bi-person-x");
+      await loadLookups();
+    }
+
+    if (e.target.dataset?.approveId) {
+      const id = e.target.dataset.approveId;
+      const code = "CP-" + crypto.randomUUID().split("-")[0].toUpperCase();
+      await db
+        .from("tasks")
+        .update({
+          status: "approved",
+          task_code: code,
+          approved_by: state.user?.id || null,
+          approved_at: new Date().toISOString(),
+        })
+        .eq("id", id);
+      showToast("Task Approved", `Task code ${code} generated.`, "bi-check2-circle");
+      await Promise.all([loadAssignerTables(), loadApprovedTasksForSchedule(), loadDashboard()]);
+    }
+
+    if (e.target.dataset?.rejectId) {
+      const id = e.target.dataset.rejectId;
+      await db
+        .from("tasks")
+        .update({ status: "assigned" })
+        .eq("id", id);
+      showToast("Task Rejected", "Sent back to assigned status.", "bi-arrow-counterclockwise");
+      await loadAssignerTables();
+    }
+
+    if (e.target.dataset?.delSchedule) {
+      const id = e.target.dataset.delSchedule;
+      await db.from("scheduled_posts").delete().eq("id", id);
+      showToast("Schedule Deleted", "Post schedule removed.", "bi-trash3");
+      await loadSchedulesForSchedulerAndPoster();
+      await loadDashboard();
+    }
+
+    if (e.target.dataset?.postFb) {
+      const id = e.target.dataset.postFb;
+      await db
+        .from("scheduled_posts")
+        .update({ facebook_posted_at: new Date().toISOString() })
+        .eq("id", id);
+      showToast("Facebook Posted", "Marked as posted on Facebook.", "bi-facebook");
+      await loadSchedulesForSchedulerAndPoster();
+      await loadDashboard();
+    }
+    if (e.target.dataset?.postIg) {
+      const id = e.target.dataset.postIg;
+      await db
+        .from("scheduled_posts")
+        .update({ instagram_posted_at: new Date().toISOString() })
+        .eq("id", id);
+      showToast("Instagram Posted", "Marked as posted on Instagram.", "bi-instagram");
+      await loadSchedulesForSchedulerAndPoster();
+      await loadDashboard();
+    }
+    if (e.target.dataset?.postBoth) {
+      const id = e.target.dataset.postBoth;
+      await db
+        .from("scheduled_posts")
+        .update({
+          facebook_posted_at: new Date().toISOString(),
+          instagram_posted_at: new Date().toISOString(),
+          status: "completed",
+        })
+        .eq("id", id);
+      showToast("Post Completed", "FB & IG both marked as posted.", "bi-check2-circle");
+      await loadSchedulesForSchedulerAndPoster();
+      await loadDashboard();
+    }
+
+    if (e.target.dataset?.artistSubmit) {
+      const id = e.target.dataset.artistSubmit;
+      await db
+        .from("task_artists")
+        .update({ submitted_at: new Date().toISOString() })
+        .eq("id", id);
+      showToast("Submitted", "Artist submission recorded.", "bi-brush");
+      await loadArtistTasks();
     }
   });
-}, 30*1000);
 
-/* small toast */
-function showToast(msg){ const t = document.createElement('div'); t.className='toast'; t.style.position='fixed'; t.style.top='90px'; t.style.right='30px'; t.style.background='linear-gradient(135deg,#10b981,#059669)'; t.style.color='white'; t.style.padding='12px 18px'; t.style.borderRadius='10px'; t.style.zIndex=99999; t.innerText=msg; document.body.appendChild(t); setTimeout(()=> t.style.opacity='0',3000); setTimeout(()=> t.remove(),3600); }
+  $("btnLogout").addEventListener("click", () => {
+    state.user = null;
+    state.artist = null;
+    $("authScreen").style.display = "flex";
+    $("appShell").style.display = "none";
+  });
 
-/* initial render */
-renderAll();
+  $("btnShowArtistLogin").addEventListener("click", () => {
+    const f = $("artistLoginForm");
+    f.style.display = f.style.display === "none" ? "block" : "none";
+  });
 
+  $("btnAddArtistToTask").addEventListener("click", () => {
+    const artistId = $("taskArtistSelect").value;
+    const artistName = $("taskArtistSelect").selectedOptions[0]?.textContent || "";
+    const role = $("taskArtistRoleSelect").value;
+    if (!artistId || !role) return;
+    if (state.selectedTaskArtists.some((a) => a.artist_id === artistId)) return;
+    state.selectedTaskArtists.push({ artist_id: artistId, name: artistName, role });
+    renderSelectedArtistsForTask();
+  });
+
+  $("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("loginError").style.display = "none";
+    const u = $("loginUsername").value.trim();
+    const p = $("loginPassword").value.trim();
+    try {
+      const user = await login(u, p);
+      state.user = user;
+      state.artist = null;
+      $("authScreen").style.display = "none";
+      $("appShell").style.display = "block";
+      $("userNameLabel").innerText = user.username;
+      setRoleBadge(user.role);
+      applyRoleVisibility(user.role);
+      showToast("Welcome", `Logged in as ${user.role}.`, "bi-person-check");
+      await fullReload();
+    } catch (err) {
+      $("loginError").textContent = "Login failed. Wrong username or password.";
+      $("loginError").style.display = "block";
+    }
+  });
+
+  $("artistLoginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("artistLoginError").style.display = "none";
+
+    const u = $("artistLoginUsername").value.trim();
+    const p = $("artistLoginPassword").value.trim();
+    if (!u || !p) return;
+
+    const { data, error } = await db
+      .from("artists")
+      .select("*")
+      .eq("artist_username", u)
+      .eq("artist_password", p)
+      .single();
+
+    if (error || !data) {
+      $("artistLoginError").textContent = "Wrong artist username or password.";
+      $("artistLoginError").style.display = "block";
+      return;
+    }
+
+    state.artist = data;
+    state.user = null;
+    $("authScreen").style.display = "none";
+    $("appShell").style.display = "block";
+
+    $("userNameLabel").innerText = "ARTIST: " + (data.name || data.artist_username);
+    const rb = $("userRoleBadge");
+    rb.textContent = "ARTIST";
+    rb.className = "cp-badge-role cp-role-viewer";
+
+    document.querySelectorAll(".cp-nav-pill").forEach((p) => {
+      const sec = p.dataset.section;
+      if (sec === "dashboard" || sec === "artist-panel") {
+        p.style.display = "";
+      } else {
+        p.style.display = "none";
+      }
+    });
+
+    showSection("artist-panel");
+    showToast("Welcome", "Artist panel loaded.", "bi-brush");
+    await loadArtistTasks();
+  });
+
+  $("formNewUser").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const username = $("newUserUsername").value.trim();
+    const password = $("newUserPassword").value.trim();
+    const role = $("newUserRole").value;
+    if (!username || !password) return;
+    await db.from("users").insert({ username, password, role, active: true });
+    $("newUserUsername").value = "";
+    $("newUserPassword").value = "";
+    showToast("User Added", `User ${username} created.`, "bi-person-plus");
+    await loadLookups();
+  });
+
+  $("formNewArtist").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = $("newArtistName").value.trim();
+    const category = $("newArtistCategory").value;
+    const phone = $("newArtistPhone").value.trim();
+    const artist_username = $("newArtistUsername").value.trim();
+    const artist_password = artist_username || "artist123";
+    if (!name) return;
+    await db.from("artists").insert({
+      name,
+      category,
+      phone,
+      artist_username,
+      artist_password,
+    });
+    $("newArtistName").value = "";
+    $("newArtistPhone").value = "";
+    $("newArtistUsername").value = "";
+    showToast("Artist Added", `Artist ${name} created.`, "bi-brush");
+    await loadLookups();
+  });
+
+  $("formNewTask").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!state.user) return;
+    const task_type_id = $("taskTypeSelect").value;
+    const urgency = $("taskUrgency").value;
+    const submission_source = $("taskSource").value;
+    const instructions = $("taskInstructions").value.trim();
+    if (!task_type_id) return;
+    const { data, error } = await db
+      .from("tasks")
+      .insert({
+        task_type_id,
+        urgency,
+        submission_source,
+        instructions,
+        assigned_by: state.user.id,
+        status: "assigned",
+      })
+      .select("id")
+      .single();
+    if (error) return;
+    const taskId = data.id;
+    const rows = state.selectedTaskArtists.map((a) => ({
+      task_id: taskId,
+      artist_id: a.artist_id,
+      assigned_role: a.role,
+    }));
+    if (rows.length) {
+      await db.from("task_artists").insert(rows);
+    }
+    state.selectedTaskArtists = [];
+    renderSelectedArtistsForTask();
+    $("taskInstructions").value = "";
+    showToast("Task Created", "Task assigned to selected artists.", "bi-clipboard-check");
+    await Promise.all([loadAssignerTables(), loadDashboard()]);
+  });
+
+  $("formSchedule").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const task_id = $("scheduleTaskSelect").value;
+    const scheduled_date = $("scheduleDate").value;
+    const rawSlots = $("scheduleTimeSlots").value;
+    const time_slots = rawSlots
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+    const post_title = $("scheduleTitle").value.trim();
+    const status = $("schedulePlatform").value;
+    const facebook_artist_id = $("scheduleFacebookArtist").value || null;
+    const instagram_id = $("scheduleInstagramId").value.trim() || null;
+    if (!task_id || !scheduled_date || time_slots.length === 0) return;
+
+    const { data: task } = await db
+      .from("tasks")
+      .select("task_code")
+      .eq("id", task_id)
+      .single();
+    if (!task?.task_code) return;
+
+    await db.from("scheduled_posts").insert({
+      task_id,
+      task_code: task.task_code,
+      post_title,
+      scheduled_date,
+      time_slots,
+      facebook_artist_id,
+      instagram_id,
+      status,
+    });
+    $("scheduleTimeSlots").value = "";
+    $("scheduleTitle").value = "";
+    showToast("Scheduled", "Post time slots added.", "bi-calendar2-plus");
+    await Promise.all([
+      loadSchedulesForSchedulerAndPoster(),
+      loadDashboard(),
+    ]);
+  });
+
+  $("formReportExport").addEventListener("submit", (e) => e.preventDefault());
+  $("btnExportPDF").addEventListener("click", () => {
+    showToast("Report", "Use browser print to export PDF.", "bi-file-earmark-pdf");
+    window.print();
+  });
+  $("btnExportJPG").addEventListener("click", () => {
+    showToast("Report", "Capture screenshot for JPG export.", "bi-file-earmark-image");
+  });
 </script>
 </body>
 </html>
